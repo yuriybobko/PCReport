@@ -22,13 +22,6 @@ public:
     void connectToDataBase(const QString dataBaseFile);
     void closeDataBase();
 
-    // Выбрать заданное поле из таблицы
-    QVector <QString> selectTitlesFromTable(QString table, QString title);
-    // Выбрать заданную пользователем категорию через представление-таблицу
-    QVector <DefinedCategory> selectDefCategory(DefCategoriesView defCtgrsView);
-    //Выбрать id из таблицы
-    int selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle);
-
     QSqlTableModel *getDefCategoryTable();
 
     void testFunc();
@@ -44,6 +37,17 @@ public slots:
 
     bool insertIntoDefCategoryRegisterTable(DefCategoryRegisterTable defCtgryRegTable,
                                             DefCategoryRegisterRecord defCtgryRegRecord);
+    bool insertIntoCostsRegisterTable(CostsRegisterTable costsRegTable, CostsRegisterRecord costsRegRecord);
+
+    // Выбрать сумму за определенный период
+    float selectTotalSumInPeriod(DefCategoryRegisterTable defCtgryRegTable,
+                                 QString firstDate, QString secondDate, int requiredId);
+    // Выбрать заданное поле из таблицы
+    QVector <QString> selectTitlesFromTable(QString table, QString title);
+    // Выбрать заданную пользователем категорию через представление-таблицу
+    QVector <DefinedCategory> selectDefCategory(DefCategoriesView defCtgrsView);
+    //Выбрать id из таблицы
+    int selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle);
 
 private:
     bool openDataBase(QString databaseFile);

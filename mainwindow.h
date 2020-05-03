@@ -54,15 +54,21 @@ private slots:
 
     void showSettingWindow();
     void showCalendarWindow();
+    QString getDateFromCalendar();
 
     void fillFrameTotalSum(); // Заполнить поля полной суммы и зарплаты
     float getTotalCashMoney(); // Получить значения всех полей наличные
     float getTotalNonCashMoney(); // Получить значения полей безналичные
     void setTotalSum(float totalCash, float totalNonCash); // Вычсилить полную сумму
-    void setSalary(); // Вычислить зарплату
-    void clearFinanceEdits(); // Очистить все поля
+    float calcSalary(); // Вычислить зарплату
+    void setSalary(); // Записать зарплату в текстовое поле
+    void clearDailyReportTabFinanceEdits(); // Очистить все финансовые текстовые поля во вкладке дневного отчета
+    void clearCostsTabEdits(); // Очистить все текстовые поля во вкладке расходов
 
-    void writeRecordToDataBase(); // Сделать запись в реестре категорий
+    void writeDefCategoryRecordToDataBase(); // Сделать запись в реестре категорий
+    void writeCostsRecordToDataBase(); // Сделать запись в реестре расходов
+
+    void showProfitInEdit();
 
     // Методы событий
 

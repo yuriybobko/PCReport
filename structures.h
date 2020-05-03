@@ -30,6 +30,13 @@ struct DefCategoryRegisterRecord {
     float selfcoast;
 };
 
+struct CostsRegisterRecord {
+    QString date;
+    int cashId;
+    float amount;
+    QString description;
+};
+
 //struct DataBaseTables {
 //    const QString staffers = "staffers";
 //    const QString categories = "categories";
@@ -94,7 +101,7 @@ extern DefCategoriesView defCategoriesView;
 struct DefCategoryRegisterTable {
     const QString table = "defcategory_register";
     const QString id = "id";
-    const QString date = "date";
+    const QString date = "date_value";
     const QString staffer = "staffer_id";
     const QString category = "category_id";
     const QString tax = "tax_id";
@@ -107,7 +114,7 @@ extern DefCategoryRegisterTable defCategoryRegisterTable;
 struct DefCategoryRegisterView {
     const QString table = "defcategory_register_view";
     const QString id = "id";
-    const QString date = "date";
+    const QString date = "date_value";
     const QString staffer = "staffer";
     const QString category= "category";
     const QString tax = "tax";
@@ -120,7 +127,7 @@ extern DefCategoryRegisterView defCategoryRegisterView;
 struct CostsRegisterTable {
     const QString table = "costs_register";
     const QString id = "id";
-    const QString date = "date";
+    const QString date = "date_value";
     const QString cash = "cash_id";
     const QString amount = "amount";
     const QString description = "description";

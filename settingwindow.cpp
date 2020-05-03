@@ -10,6 +10,7 @@ DefCategoriesView defCategoriesView;
 DefCategoriesTable defCategoriesTable;
 DefCategoryRegisterView defCategoryRegisterView;
 DefCategoryRegisterTable defCategoryRegisterTable;
+CostsRegisterTable costsRegisterTable;
 
 SettingWindow::SettingWindow(QWidget *parent) :
     QDialog(parent),

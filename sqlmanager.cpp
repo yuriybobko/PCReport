@@ -126,41 +126,51 @@ bool SqlManager::insertIntoDefCategoryRegisterTable(DefCategoryRegisterTable def
                 if (query.exec())
                     return true;
             }
-    return false;
-}
-
-bool SqlManager::openDataBase(QString databaseFile)
-{
-    dataBase.setDatabaseName(databaseFile);
-        if(dataBase.open()) {
-            m_defCategoryTable = new QSqlTableModel(this, dataBase);
-            QSqlQuery query;
-            if (query.exec("PRAGMA foreign_keys = on;"))
-                qDebug() << "foreign_keys = on";
-            else
-                qDebug() << "foreign_keys = off";
-            return true;
-        } else {
             return false;
+}
+
+bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterTable costsRegTable, CostsRegisterRecord costsRegRecord)
+{
+    QSqlQuery query;
+    QString queryString = "INSERT INTO " + costsRegTable.table + " ( " +
+            costsRegTable.date + ", " + costsRegTable.cash + ", " +
+            costsRegTable.amount + ", " + costsRegTable.description + ") " +
+             " VALUES (:date, :cashId, :amount, :description)";
+            if (query.prepare(queryString)) {
+                query.bindValue(":date", costsRegRecord.date);
+                query.bindValue(":cashId", costsRegRecord.cashId);
+                query.bindValue(":amount", costsRegRecord.amount);
+                query.bindValue(":description", costsRegRecord.description);
+                if (query.exec())
+                    return true;
+            }
+            return false;
+}
+
+float SqlManager::selectTotalSumInPeriod(DefCategoryRegisterTable defCtgryRegTable,
+                                         QString firstDate, QString secondDate, int requiredId)
+{
+    float totalSum = 0;
+    QSqlQuery query;
+    QString queryString = "SELECT sum(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
+            " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
+            "AND " + defCtgryRegTable.category + " = :requiredId;";
+
+    qDebug() << queryString;
+    QString fD = "2020-02-07";
+    QString sD = "2020-02-09";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        query.bindValue(":requiredId", requiredId);
+
+        if (query.exec()) {
+            while (query.next()) {
+                totalSum = query.value(0).toFloat();
+            }
         }
-}
-
-bool SqlManager::createDataBase(QString databaseFile)
-{
-    if (this->openDataBase(databaseFile)) {
-        return (this->createTables()) ? true : false;
-    } else {
-        qDebug() << "Не удалось восстановить базу данных";
-        return false;
     }
-    return false;
-}
-
-void SqlManager::closeDataBase()
-{
-    if (dataBase.isOpen())
-        dataBase.close();
-    QSqlDatabase::removeDatabase(m_currentDataBaseFile);
+    return totalSum;
 }
 
 QVector<QString> SqlManager::selectTitlesFromTable(QString table, QString title)
@@ -233,6 +243,41 @@ int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableT
     }
     return id;
 }
+
+bool SqlManager::openDataBase(QString databaseFile)
+{
+    dataBase.setDatabaseName(databaseFile);
+        if(dataBase.open()) {
+            m_defCategoryTable = new QSqlTableModel(this, dataBase);
+            QSqlQuery query;
+            if (query.exec("PRAGMA foreign_keys = on;"))
+                qDebug() << "foreign_keys = on";
+            else
+                qDebug() << "foreign_keys = off";
+            return true;
+        } else {
+            return false;
+        }
+}
+
+bool SqlManager::createDataBase(QString databaseFile)
+{
+    if (this->openDataBase(databaseFile)) {
+        return (this->createTables()) ? true : false;
+    } else {
+        qDebug() << "Не удалось восстановить базу данных";
+        return false;
+    }
+    return false;
+}
+
+void SqlManager::closeDataBase()
+{
+    if (dataBase.isOpen())
+        dataBase.close();
+    QSqlDatabase::removeDatabase(m_currentDataBaseFile);
+}
+
 
 QSqlTableModel *SqlManager::getDefCategoryTable()
 {

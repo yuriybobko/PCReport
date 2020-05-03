@@ -22,21 +22,37 @@ MainWindow::MainWindow(QWidget *parent)
             this, SLOT(editFormBtnCategory(QVector <DefinedCategory>)));
 
     connect(ui->BtnSettings, SIGNAL(clicked()), this, SLOT(showSettingWindow()));
-    connect(ui->BtnCalendar, SIGNAL(clicked()), this, SLOT(showCalendarWindow()));
+    //connect(ui->BtnCalendar, SIGNAL(clicked()), this, SLOT(showCalendarWindow()));
+    connect(ui->BtnCalendar, &QPushButton::clicked, [this]() {
+        QString selectedString = this->getDateFromCalendar();
+        if (!selectedString.isEmpty())
+            ui->LblSelectedDate->setText(selectedString);
+    });
+    connect(ui->BtnCalendarFrom, &QPushButton::clicked, [this]() {
+        QString selectedString = this->getDateFromCalendar();
+        if (!selectedString.isEmpty())
+            ui->LblFromDate->setText(selectedString);
+    });
+    connect(ui->BtnCalendarTo, &QPushButton::clicked, [this]() {
+        QString selectedString = this->getDateFromCalendar();
+        if (!selectedString.isEmpty())
+            ui->LblToDate->setText(selectedString);
+    });
 
-    connect(ui->BtnWriteToDataBase, SIGNAL(clicked()), this, SLOT(writeRecordToDataBase()));
+    connect(ui->BtnWriteRegisterToDataBase, SIGNAL(clicked()), this, SLOT(writeDefCategoryRecordToDataBase()));
+    connect(ui->BtnWriteCostsToDataBase, SIGNAL(clicked()), this, SLOT(writeCostsRecordToDataBase()));
 
     connect(ui->BtnExit, &QPushButton::clicked, []() {
         QApplication::exit();
     });
-
-
 
     // Сигнал в status bar
     connect(&sqlManager, &SqlManager::signalToStatusBar, this, &MainWindow::showStatusBar);
 
     // Нажатие кнопки вычисления зарплаты и заполнения полей полной суммы
     connect(ui->BtnFillFrameTotalSum, SIGNAL(clicked()), this, SLOT(fillFrameTotalSum()));
+
+    connect(ui->BtnShowProfit, SIGNAL(clicked()), this, SLOT(showProfitInEdit()));
 
     this->setChildWidgets();
 }
@@ -97,6 +113,17 @@ void MainWindow::setChildWidgets()
     ui->BtnCalendar->setIcon(imgCalendarIcon);
     ui->BtnCalendar->setToolTip("Календарь");
 
+    ui->BtnCalendarFrom->setIconSize(QSize(ui->BtnCalendarFrom->size().width() - 1,
+                                       ui->BtnCalendarFrom->size().height() - 1));
+    ui->BtnCalendarFrom->setIcon(imgCalendarIcon);
+    ui->BtnCalendarFrom->setToolTip("Календарь");
+    ui->BtnCalendarTo->setIconSize(QSize(ui->BtnCalendarTo->size().width() - 1,
+                                       ui->BtnCalendarTo->size().height() - 1));
+    ui->BtnCalendarTo->setIcon(imgCalendarIcon);
+    ui->BtnCalendarTo->setToolTip("Календарь");
+    ui->LblFromDate->setText(curDateString);
+    ui->LblToDate->setText(curDateString);
+
     this->LayoutFormBtnCategory = new QVBoxLayout(ui->scrollAreaWidgetContents);
     this->LayoutFormBtnCategory->setObjectName(QStringLiteral("LayoutFormBtnCategory"));
     this->LayoutFormBtnCategory->setContentsMargins(6, 6, 6, 6);
@@ -108,6 +135,13 @@ void MainWindow::setChildWidgets()
     ui->EditSalary->setReadOnly(true);
     ui->EditCashMoney->setReadOnly(true);
     ui->EditNonCashMoney->setReadOnly(true);
+
+    QStringList cmbBosList {CASH_STRING, NONCASH_STRING};
+    ui->CmbBoxCash->addItems(cmbBosList);
+
+    ui->EditCostsTotalSum->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
+
+    //ui->TabWidgetMain->setStyleSheet("background-color: rgb(235, 235, 235);");
 }
 
 void MainWindow::addFormBtnCategory(QString strCategory)
@@ -140,9 +174,12 @@ void MainWindow::addFormBtnCategory(DefinedCategory defCategory)
                                                         m_FormBtnCategory.at(m_FormBtnCategory.size() - 1)->height()
                                                         + m_dHeight));
 
+//        FormCategory *formCtgry = new FormCategory(m_FormCategory.size(),
+//                                                   defCategory,
+//                                                   this);
         FormCategory *formCtgry = new FormCategory(m_FormCategory.size(),
                                                    defCategory,
-                                                   this);
+                                                   ui->TabDailyReport);
         m_FormCategory.append(formCtgry);
 }
 
@@ -168,7 +205,7 @@ void MainWindow::showFormCategory(int formId)
     foreach (FormCategory *item, m_FormCategory) {
         item->hide();
     }
-    m_FormCategory.at(formId)->setGeometry(490, 130,
+    m_FormCategory.at(formId)->setGeometry(490, 30,
                                            m_FormCategory.at(formId)->width(),
                                            m_FormCategory.at(formId)->height());
     m_FormCategory.at(formId)->show();
@@ -235,6 +272,17 @@ void MainWindow::showCalendarWindow()
     }
 }
 
+QString MainWindow::getDateFromCalendar()
+{
+    bool btnOk = false;
+    QString selectedDateString = CalendarWindow::getDate(&btnOk, this);
+    if (btnOk) {
+        return selectedDateString;
+    }
+    else
+        return "";
+}
+
 void MainWindow::fillFrameTotalSum()
 {
     float totalCash = this->getTotalCashMoney();
@@ -269,7 +317,7 @@ void MainWindow::setTotalSum(float totalCash, float totalNonCash)
     ui->EditTotalSum->setText(QString::number(totalSum));
 }
 
-void MainWindow::setSalary()
+float MainWindow::calcSalary()
 {
     float salary = 0;
     for (int ii = 0; ii < m_FormCategory.size(); ii++) {
@@ -278,8 +326,8 @@ void MainWindow::setSalary()
         float selfcoast = m_FormCategory.at(ii)->getSelfcoast();
         if (totalSum - selfcoast < 0) {
             this->showStatusBar("Себестоимость больше общей суммы");
-            this->clearFinanceEdits();
-            return;
+            this->clearDailyReportTabFinanceEdits();
+            return -1;
         }
         float adtnlSum = (totalSum - selfcoast)*kSalary;
         if (!m_FormCategory.at(ii)->isSelling() && totalSum > 0) {
@@ -289,11 +337,21 @@ void MainWindow::setSalary()
         salary += adtnlSum;
     }
     salary += m_settingWndw->basicWage*(1 - m_settingWndw->basicWageKoefSalary);
+    return salary;
+}
+
+void MainWindow::setSalary()
+{
+    float salary = this->calcSalary();
+    if (salary < 0) {
+        this->showStatusBar("Себестоимость больше общей суммы");
+        return;
+    }
     ui->EditSalary->setText(QString::number(salary));
     this->showStatusBar("Заработная плата вычислена");
 }
 
-void MainWindow::clearFinanceEdits()
+void MainWindow::clearDailyReportTabFinanceEdits()
 {
     ui->EditSalary->setText("");
     ui->EditTotalSum->setText("");
@@ -301,17 +359,25 @@ void MainWindow::clearFinanceEdits()
     ui->EditNonCashMoney->setText("");
 }
 
-void MainWindow::writeRecordToDataBase()
+void MainWindow::clearCostsTabEdits()
+{
+    ui->EditCostsTotalSum->setText("");
+    ui->TextEditCostsDescr->setPlainText("");
+}
+
+void MainWindow::writeDefCategoryRecordToDataBase()
 {
     bool isAnyRecordExist = false;
-    this->showStatusBar("Идет запись в базу данных");
+    bool isRecordExist = false;
+    this->showStatusBar("Идет запись в реестр категорий");
     DefCategoryRegisterRecord defCtgryRegRecord;
-    defCtgryRegRecord.date = "'" + ui->LblSelectedDate->text() + "'";
+    defCtgryRegRecord.date = ui->LblSelectedDate->text();
     QString stafferName = ui->CmbBoxStaffer->currentText();
     defCtgryRegRecord.stafferId = sqlManager.selectIdFromTable(staffersTable.table, staffersTable.id,
                                                                staffersTable.name, stafferName);
     for (int ii = 0; ii < m_FormCategory.size(); ii++) {
         for (int kk = 1; kk < 3; kk++) {
+            isRecordExist = false;
             QString ctgryTitle = m_FormCategory.at(ii)->getCategoryTitle();
             defCtgryRegRecord.categoryId = sqlManager.selectIdFromTable(categoriesTable.table, categoriesTable.id,
                                                                         categoriesTable.title, ctgryTitle);
@@ -319,18 +385,18 @@ void MainWindow::writeRecordToDataBase()
             defCtgryRegRecord.taxId = sqlManager.selectIdFromTable(taxesTable.table, taxesTable.id,
                                                                        taxesTable.title, taxTitle);
             if (kk == 1) {
-                QString cashTitle = "нал.";
+                QString cashTitle = CASH_STRING;
                 defCtgryRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
                                                                            cashTable.title, cashTitle);
                 defCtgryRegRecord.amount = m_FormCategory.at(ii)->getCashMoney();
                 if (m_FormCategory.at(ii)->getCashMoney() > 0) {
                     defCtgryRegRecord.selfcoast = m_FormCategory.at(ii)->getSelfcoast();
-                    sqlManager.insertIntoDefCategoryRegisterTable(defCategoryRegisterTable, defCtgryRegRecord);
+                    isRecordExist = true;
                     isAnyRecordExist = true;
                 }
             }
             else {
-                QString cashTitle = "б/нал.";
+                QString cashTitle = NONCASH_STRING;
                 defCtgryRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
                                                                            cashTable.title, cashTitle);
                 defCtgryRegRecord.amount = m_FormCategory.at(ii)->getNonCashMoney();
@@ -340,21 +406,63 @@ void MainWindow::writeRecordToDataBase()
                     }
                     else
                         defCtgryRegRecord.selfcoast = m_FormCategory.at(ii)->getSelfcoast();
-                    sqlManager.insertIntoDefCategoryRegisterTable(defCategoryRegisterTable, defCtgryRegRecord);
+                    isRecordExist = true;
                     isAnyRecordExist = true;
                 }
+            }
+            if (isRecordExist) {
+                if (sqlManager.insertIntoDefCategoryRegisterTable(defCategoryRegisterTable, defCtgryRegRecord)) {
+                    //this->showStatusBar("Запись в реестр категорий выполнена");
+                }
+                else
+                    this->showStatusBar("Не удается выполнить запись в реестр категорий");
             }
         }
     }
     if (isAnyRecordExist) {
-        this->showStatusBar("Запись в базу данных выполнена");
-        this->clearFinanceEdits();
+        this->showStatusBar("Запись в реестр категорий выполнена");
+        this->clearDailyReportTabFinanceEdits();
         for (int ii = 0; ii < m_FormCategory.size(); ii++) {
             m_FormCategory.at(ii)->clearEdits();
         }
     }
     else
         this->showStatusBar("Все поля пусты");
+}
+
+void MainWindow::writeCostsRecordToDataBase()
+{
+    bool isAnyRecordExist = false;
+    if (!ui->EditCostsTotalSum->text().isEmpty() && !ui->TextEditCostsDescr->toPlainText().isEmpty())
+        isAnyRecordExist = true;
+
+    if (isAnyRecordExist) {
+        this->showStatusBar("Идет запись в реестр расходов");
+        CostsRegisterRecord costsRegRecord;
+        costsRegRecord.date = ui->LblSelectedDate->text();
+        QString cashString = ui->CmbBoxCash->currentText();
+        costsRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
+                                                                   cashTable.title, cashString);
+        costsRegRecord.amount = ui->EditCostsTotalSum->text().toFloat();
+        costsRegRecord.description = ui->TextEditCostsDescr->toPlainText();
+        if (sqlManager.insertIntoCostsRegisterTable(costsRegisterTable, costsRegRecord))
+            this->showStatusBar("Запись в реестр расходов выполнена");
+        else
+            this->showStatusBar("Не удается выполнить запись в реестр расходов");
+        this->clearCostsTabEdits();
+    }
+    else
+        this->showStatusBar("Все поля пусты");
+}
+
+void MainWindow::showProfitInEdit()
+{
+    QString firstDate = ui->LblFromDate->text();
+    QString secondDate = ui->LblToDate->text();
+    int requiredId = 1;
+    float totalSum;
+    totalSum = sqlManager.selectTotalSumInPeriod(defCategoryRegisterTable, firstDate, secondDate, requiredId);
+    int uu = 5;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
