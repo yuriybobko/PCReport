@@ -110,41 +110,110 @@ bool SqlManager::insertIntoDefCategoryRegisterTable(DefCategoryRegisterTable def
                                                     DefCategoryRegisterRecord defCtgryRegRecord)
 {
     QSqlQuery query;
-    QString queryString = "INSERT INTO " + defCtgryRegTable.table + " ( " +
+    QString queryString = "INSERT INTO " + defCtgryRegTable.table + " (" +
             defCtgryRegTable.date + ", " + defCtgryRegTable.staffer + ", " +
             defCtgryRegTable.category + ", " + defCtgryRegTable.tax + ", " +
-            defCtgryRegTable.cash + " , " + defCtgryRegTable.amount + " , " + defCtgryRegTable.selfcoast + ") " +
-             " VALUES (:date, :stafferId, :defCategoryId, :taxId, :cashId, :amount, :selfcoast)";
-            if (query.prepare(queryString)) {
-                query.bindValue(":date", defCtgryRegRecord.date);
-                query.bindValue(":stafferId", defCtgryRegRecord.stafferId);
-                query.bindValue(":defCategoryId", defCtgryRegRecord.categoryId);
-                query.bindValue(":taxId", defCtgryRegRecord.taxId);
-                query.bindValue(":cashId", defCtgryRegRecord.cashId);
-                query.bindValue(":amount", defCtgryRegRecord.amount);
-                query.bindValue(":selfcoast", defCtgryRegRecord.selfcoast);
-                if (query.exec())
-                    return true;
-            }
-            return false;
+            defCtgryRegTable.cash + ", " + defCtgryRegTable.amount + ", " +
+            defCtgryRegTable.selfcoast + ")" +
+             " VALUES (:date, :stafferId, :defCategoryId, :taxId, :cashId, :amount, :selfcoast)" +
+            ";";
+    if (query.prepare(queryString)) {
+        query.bindValue(":date", defCtgryRegRecord.date);
+        query.bindValue(":stafferId", defCtgryRegRecord.stafferId);
+        query.bindValue(":defCategoryId", defCtgryRegRecord.categoryId);
+        query.bindValue(":taxId", defCtgryRegRecord.taxId);
+        query.bindValue(":cashId", defCtgryRegRecord.cashId);
+        query.bindValue(":amount", defCtgryRegRecord.amount);
+        query.bindValue(":selfcoast", defCtgryRegRecord.selfcoast);
+        if (query.exec())
+            return true;
+    }
+    return false;
+}
+
+bool SqlManager::insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord)
+{
+    SalaryRegisterTable salaryRegTable;
+    QSqlQuery query;
+    QString queryString = "INSERT INTO " + salaryRegTable.table + " (" +
+            salaryRegTable.date + ", " + salaryRegTable.staffer + ", " +
+            salaryRegTable.amount + ", " + salaryRegTable.basicWage + ", " +
+            salaryRegTable.koefBasicWage + ")" +
+             " VALUES (:date, :stafferId, :amount, :basicWage, :koefBasicWage)" +
+            ";";
+    qDebug() << queryString;
+    if (query.prepare(queryString)) {
+        query.bindValue(":date", salaryRegRecord.date);
+        query.bindValue(":stafferId", salaryRegRecord.stafferId);
+        query.bindValue(":amount", salaryRegRecord.amount);
+        query.bindValue(":basicWage", salaryRegRecord.basicWage);
+        query.bindValue(":koefBasicWage", salaryRegRecord.koefBasicWage);
+        if (query.exec())
+            return true;
+    }
+    return false;
 }
 
 bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterTable costsRegTable, CostsRegisterRecord costsRegRecord)
 {
     QSqlQuery query;
-    QString queryString = "INSERT INTO " + costsRegTable.table + " ( " +
+    QString queryString = "INSERT INTO " + costsRegTable.table + " (" +
             costsRegTable.date + ", " + costsRegTable.cash + ", " +
-            costsRegTable.amount + ", " + costsRegTable.description + ") " +
-             " VALUES (:date, :cashId, :amount, :description)";
-            if (query.prepare(queryString)) {
-                query.bindValue(":date", costsRegRecord.date);
-                query.bindValue(":cashId", costsRegRecord.cashId);
-                query.bindValue(":amount", costsRegRecord.amount);
-                query.bindValue(":description", costsRegRecord.description);
-                if (query.exec())
-                    return true;
-            }
-            return false;
+            costsRegTable.amount + ", " + costsRegTable.description + ")" +
+             " VALUES (:date, :cashId, :amount, :description)" +
+            ";";
+    if (query.prepare(queryString)) {
+        query.bindValue(":date", costsRegRecord.date);
+        query.bindValue(":cashId", costsRegRecord.cashId);
+        query.bindValue(":amount", costsRegRecord.amount);
+        query.bindValue(":description", costsRegRecord.description);
+        if (query.exec())
+            return true;
+    }
+    return false;
+}
+
+bool SqlManager::updateRecordInSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord)
+{
+    SalaryRegisterTable salaryRegTable;
+    QString requiredDate = salaryRegRecord.date;
+    int requiredStafferId = salaryRegRecord.stafferId;
+    QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector = this->selectDefCategoryRegRecord(requiredDate,
+                                                                                               requiredStafferId);
+    QVector<DefinedCategoryRecord> defCtgryRecordVector = this->selectDefCategoryRecord(defCtgryRegRecordVector);
+    SalaryRegisterRecord oldSalaryRegRecord = this->selectSalaryRecord(requiredDate, requiredStafferId);
+    float newAmount = this->calcSalary(defCtgryRegRecordVector, defCtgryRecordVector, oldSalaryRegRecord);
+
+    QSqlQuery query;
+    QString queryString = "UPDATE " + salaryRegTable.table + " SET " + salaryRegTable.amount + " = :newAmount " +
+            "WHERE " + salaryRegTable.date + " = :requiredDate " +
+            " AND " + salaryRegTable.staffer + " = :requiredStafferId" +
+            ";";
+    if (query.prepare(queryString)) {
+        query.bindValue(":newAmount", newAmount);
+        query.bindValue(":requiredDate", requiredDate);
+        query.bindValue(":requiredStafferId", requiredStafferId);
+        if (query.exec())
+                return true;
+    }
+    return false;
+}
+
+float SqlManager::calcSalary(QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector,
+                             QVector<DefinedCategoryRecord> defCtgryRecordVector,
+                             SalaryRegisterRecord oldSalaryRegRecord)
+{
+    float salary = 0;
+    for (int ii = 0; ii < defCtgryRegRecordVector.size(); ii++) {
+        float adtnlSum = (defCtgryRegRecordVector.at(ii).amount -
+                          defCtgryRegRecordVector.at(ii).selfcoast)*defCtgryRecordVector.at(ii).koefSalary;
+        if (defCtgryRecordVector.at(ii).isSelling) {
+            adtnlSum *= defCtgryRecordVector.at(ii).koefProfit;
+        }
+        salary += adtnlSum;
+    }
+    salary += oldSalaryRegRecord.basicWage*(1 - oldSalaryRegRecord.koefBasicWage);
+    return salary;
 }
 
 float SqlManager::selectTotalSumInPeriod(DefCategoryRegisterTable defCtgryRegTable,
@@ -227,14 +296,123 @@ QVector<DefinedCategory> SqlManager::selectDefCategory(DefCategoriesView defCtgr
     return defCategoryVector;
 }
 
+QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord(QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector)
+{
+    QVector<DefinedCategoryRecord> defCategoryVector;
+    DefCategoriesTable defCtgryTable;
+    for (int ii = 0; ii < defCtgryRegRecordVector.size(); ii++) {
+        QSqlQuery query;
+        QString queryString = "SELECT * FROM " + defCtgryTable.table +
+                " WHERE " + defCtgryTable.title + " = :categoryId" +
+                " AND " + defCtgryTable.tax + " = :taxId" +
+                ";";
+        if (query.prepare(queryString)) {
+            query.bindValue(":categoryId", defCtgryRegRecordVector.at(ii).categoryId);
+            query.bindValue(":taxId", defCtgryRegRecordVector.at(ii).taxId);
+            if (query.exec()) {
+                while (query.next()) {
+                    DefinedCategoryRecord defCategory;
+                    int kk = 1;
+                    defCategory.categoryId = query.value(kk).toInt(); kk++;
+                    defCategory.taxId = query.value(kk).toInt(); kk++;
+                    defCategory.selfcoast = query.value(kk).toInt(); kk++;
+                    defCategory.koefSalary = query.value(kk).toFloat(); kk++;
+                    defCategory.koefProfit = query.value(kk).toFloat(); kk++;
+                    defCategory.isSelling = query.value(kk).toInt(); kk++;
+                    defCategory.isContracted = query.value(kk).toInt(); kk++;
+                    defCategoryVector.append(defCategory);
+                }
+            }
+        }
+    }
+
+    return defCategoryVector;
+}
+
+QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QString date,
+                                                                       int stafferId)
+{
+    QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector;
+    DefCategoryRegisterTable defCtgryRegTable;
+    QSqlQuery query;
+    QString queryString = "SELECT * FROM " + defCtgryRegTable.table +
+                        " WHERE " + defCtgryRegTable.date + " = :requiredDate " +
+                        " AND " + defCtgryRegTable.staffer + " = :requiredStafferId" +
+                        ";";
+
+    if (query.prepare(queryString)) {
+        query.bindValue(":requiredDate", date);
+        query.bindValue(":requiredStafferId", stafferId);
+        if (query.exec()) {
+            while (query.next()) {
+                DefCategoryRegisterRecord defCtgryRegRecord;
+                int kk = 0;
+                defCtgryRegRecord.id = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.date = query.value(kk).toString(); kk++;
+                defCtgryRegRecord.stafferId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.categoryId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.taxId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.cashId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.amount = query.value(kk).toFloat(); kk++;
+                defCtgryRegRecord.selfcoast = query.value(kk).toInt(); kk++;
+                defCtgryRegRecordVector.append(defCtgryRegRecord);
+            }
+        }
+    }
+    else {
+        qDebug() << "Selecting error in defcategory_register";
+    }
+    return defCtgryRegRecordVector;
+
+}
+
+SalaryRegisterRecord SqlManager::selectSalaryRecord(QString date, int stafferId)
+{
+    SalaryRegisterRecord salaryRegRecord;;
+    SalaryRegisterTable salaryRegTable;
+    QSqlQuery query;
+    QString queryStrigng = "SELECT * FROM " + salaryRegTable.table +
+                        " WHERE " + salaryRegTable.date + " = :requiredDate " +
+                        " AND " + salaryRegTable.staffer + " = :requiredStafferId" +
+                        ";";
+
+    if (query.prepare(queryStrigng)) {
+        query.bindValue(":requiredDate", date);
+        query.bindValue(":requiredStafferId", stafferId);
+        if (query.exec()) {
+            while (query.next()) {
+                int kk = 0;
+                salaryRegRecord.id = query.value(kk).toInt(); kk++;
+                salaryRegRecord.date = query.value(kk).toString(); kk++;
+                salaryRegRecord.stafferId = query.value(kk).toInt(); kk++;
+                salaryRegRecord.amount = query.value(kk).toFloat(); kk++;
+                salaryRegRecord.basicWage = query.value(kk).toFloat(); kk++;
+                salaryRegRecord.koefBasicWage = query.value(kk).toFloat(); kk++;
+            }
+        }
+    }
+    else {
+        qDebug() << "Selecting error in salary_register";
+    }
+    return salaryRegRecord;
+}
+
 int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle)
 {
     int id = -1;
     QSqlQuery query;
-    if (query.exec("SELECT " + tableId + " FROM " + table +
-                   " WHERE " + tableTitle + " = '" + requiredTitle + "'")) {
-        while (query.next()) {
-            id = query.value(0).toInt();
+//    QString queryStrigng = "SELECT " + tableId + " FROM " + table +
+//            " WHERE " + tableTitle + " = '" + requiredTitle + "'";
+
+        QString queryStrigng = "SELECT " + tableId + " FROM " + table +
+                " WHERE " + tableTitle + " = :requiredTitle;";
+
+    if (query.prepare(queryStrigng)) {
+        query.bindValue(":requiredTitle", requiredTitle);
+        if (query.exec()) {
+            while (query.next()) {
+                id = query.value(0).toInt();
+            }
         }
     }
     else {
@@ -242,6 +420,31 @@ int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableT
         qDebug() << "Не удалось найти id для " + tableTitle + " из " + table;
     }
     return id;
+}
+
+bool SqlManager::isSalaryRecordExist(SalaryRegisterTable salaryRegTable, SalaryRegisterRecord salaryRegRecord)
+{
+    bool isRecordExist = false;
+    QSqlQuery query;
+    QString queryStrigng = "SELECT " + salaryRegTable.date + ", " + salaryRegTable.staffer +
+            " FROM " + salaryRegTable.table +
+            " WHERE " + salaryRegTable.date + " = :requiredDate "
+            "AND " + salaryRegTable.staffer + " = :requiredStafferId;";
+    qDebug() << queryStrigng;
+    if (query.prepare(queryStrigng)) {
+        query.bindValue(":requiredDate", salaryRegRecord.date);
+        query.bindValue(":requiredStafferId", salaryRegRecord.stafferId);
+        if (query.exec()) {
+            while (query.next()) {
+                isRecordExist = true;
+            }
+        }
+    }
+    else {
+        //emit signalToStatusBar("Не удалось прочитать");
+        qDebug() << "Не удалось выполнить запрос выборе существующей записи в реестре зарплат";
+    }
+    return isRecordExist;
 }
 
 bool SqlManager::openDataBase(QString databaseFile)
@@ -309,6 +512,12 @@ bool SqlManager::createTables()
                                              categoriesTable, taxesTable, cashTable))
         result = false;
     if (!this->createCostsRegisterTable(costsRegisterTable, cashTable))
+        result = false;
+    if (!this->createCostsRegisterView(costsRegisterView, costsRegisterTable, cashTable))
+        result = false;
+    if (!this->createSalaryRegisterTable(salaryRegisterTable, staffersTable))
+        result = false;
+    if (!this->createSalaryRegisterView(salaryRegisterView, salaryRegisterTable, staffersTable))
         result = false;
     return result;
 }
@@ -452,11 +661,76 @@ bool SqlManager::createCostsRegisterTable(CostsRegisterTable costsRegTable, Cash
             costsRegTable.id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
             costsRegTable.date + " TEXT NOT NULL, " +
             costsRegTable.cash + " INTEGER NOT NULL, " +
-            costsRegTable.amount + " REAL, " +
+            costsRegTable.amount + " REAL NOT NULL, " +
             costsRegTable.description + " TEXT NOT NULL, " +
             "FOREIGN KEY (" + costsRegTable.cash + ") REFERENCES " + cashTable.table + "(" +
             cashTable.id + ") ON DELETE CASCADE" +
             ");";
+    if (query.exec(queryString)) {
+        return true;
+    }
+    else
+        return false;
+}
+
+bool SqlManager::createCostsRegisterView(CostsRegisterView costsRegView, CostsRegisterTable costsRegTable,
+                                         CashTable cashTable)
+{
+    QSqlQuery query;
+    QString queryString = "CREATE VIEW " + costsRegView.table + " AS "
+            "SELECT " + costsRegTable.table + "." + costsRegTable.id + " AS " + costsRegView.id + ", " +
+            costsRegTable.table + "." + costsRegTable.date + " AS " + costsRegView.date + ", " +
+            cashTable.table + "." + cashTable.title+ " AS " + costsRegView.cash + ", " +
+            costsRegTable.table + "." + costsRegTable.amount + " AS " + costsRegView.amount + ", " +
+            costsRegTable.table + "." + costsRegTable.description + " AS " + costsRegView.description +
+            " FROM " + costsRegTable.table + ", " +
+            cashTable.table +
+            " WHERE " + costsRegTable.table + "." + costsRegTable.cash + " = " +
+            cashTable.table + "." + cashTable.id +
+            ";";
+    if (query.exec(queryString)) {
+        return true;
+    }
+    else
+        return false;
+}
+
+bool SqlManager::createSalaryRegisterTable(SalaryRegisterTable salaryRegTable, StaffersTable staffersTable)
+{
+    QSqlQuery query;
+    QString queryString = "CREATE TABLE " + salaryRegTable.table + " (" +
+            salaryRegTable.id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+            salaryRegTable.date + " TEXT NOT NULL, " +
+            salaryRegTable.staffer+ " INTEGER NOT NULL, " +
+            salaryRegTable.amount + " REAL NOT NULL, " +
+            salaryRegTable.basicWage + " REAL NOT NULL, " +
+            salaryRegTable.koefBasicWage + " REAL NOT NULL, " +
+            "FOREIGN KEY (" + salaryRegTable.staffer + ") REFERENCES " + staffersTable.table + "(" +
+            staffersTable.id + ") ON DELETE CASCADE" +
+            ");";
+    if (query.exec(queryString)) {
+        return true;
+    }
+    else
+        return false;
+}
+
+bool SqlManager::createSalaryRegisterView(SalaryRegisterView salaryRegView, SalaryRegisterTable salaryRegTable,
+                                          StaffersTable staffersTable)
+{
+    QSqlQuery query;
+    QString queryString = "CREATE VIEW " + salaryRegView.table + " AS "
+            "SELECT " + salaryRegTable.table + "." + salaryRegTable.id + " AS " + salaryRegView.id + ", " +
+            salaryRegTable.table + "." + salaryRegTable.date + " AS " + salaryRegTable.date + ", " +
+            staffersTable.table + "." + staffersTable.name + " AS " + salaryRegView.staffer + ", " +
+            salaryRegTable.table + "." + salaryRegTable.amount + " AS " + salaryRegView.amount + ", " +
+            salaryRegTable.table + "." + salaryRegTable.basicWage + " AS " + salaryRegView.basicWage + ", " +
+            salaryRegTable.table + "." + salaryRegTable.koefBasicWage + " AS " + salaryRegView.koefBasicWage +
+            " FROM " + salaryRegTable.table + ", " +
+            staffersTable.table +
+            " WHERE " + salaryRegTable.table + "." + salaryRegTable.staffer + " = " +
+            staffersTable.table + "." + staffersTable.id +
+            ";";
     if (query.exec(queryString)) {
         return true;
     }

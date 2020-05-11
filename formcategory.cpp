@@ -16,7 +16,7 @@ FormCategory::FormCategory(int formId, DefinedCategory defCategory, QWidget *par
 {
     ui->setupUi(this);
     m_formId = formId;
-    ui->LblCategoryDescr->setText(defCategory.categoryTitle);
+    ui->LblCategoryDescr->setText(QString::number(m_formId + 1) + " - " + defCategory.categoryTitle);
     ui->LblTaxDescr->setText(defCategory.taxTitle);
     m_categoryTitle = defCategory.categoryTitle;
     m_taxTitle = defCategory.taxTitle;

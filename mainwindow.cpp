@@ -336,7 +336,7 @@ float MainWindow::calcSalary()
         }
         salary += adtnlSum;
     }
-    salary += m_settingWndw->basicWage*(1 - m_settingWndw->basicWageKoefSalary);
+    salary += m_settingWndw->basicWage*(1 - m_settingWndw->koefBasicWage);
     return salary;
 }
 
@@ -414,12 +414,15 @@ void MainWindow::writeDefCategoryRecordToDataBase()
                 if (sqlManager.insertIntoDefCategoryRegisterTable(defCategoryRegisterTable, defCtgryRegRecord)) {
                     //this->showStatusBar("Запись в реестр категорий выполнена");
                 }
-                else
+                else {
                     this->showStatusBar("Не удается выполнить запись в реестр категорий");
+                    return;
+                }
             }
         }
     }
     if (isAnyRecordExist) {
+        this->writeSalaryRecordToDataBase();
         this->showStatusBar("Запись в реестр категорий выполнена");
         this->clearDailyReportTabFinanceEdits();
         for (int ii = 0; ii < m_FormCategory.size(); ii++) {
@@ -428,6 +431,24 @@ void MainWindow::writeDefCategoryRecordToDataBase()
     }
     else
         this->showStatusBar("Все поля пусты");
+}
+
+void MainWindow::writeSalaryRecordToDataBase()
+{
+    SalaryRegisterRecord salaryRegRecord;
+    salaryRegRecord.date = ui->LblSelectedDate->text();
+    QString stafferName = ui->CmbBoxStaffer->currentText();
+    salaryRegRecord.stafferId = sqlManager.selectIdFromTable(staffersTable.table, staffersTable.id,
+                                                               staffersTable.name, stafferName);
+    salaryRegRecord.amount = this->calcSalary();
+    salaryRegRecord.basicWage = m_settingWndw->basicWage;
+    salaryRegRecord.koefBasicWage = m_settingWndw->koefBasicWage;
+
+    if (!sqlManager.isSalaryRecordExist(salaryRegisterTable, salaryRegRecord))
+        sqlManager.insertIntoSalaryRegisterTable(salaryRegRecord);
+    else {
+        sqlManager.updateRecordInSalaryRegisterTable(salaryRegRecord);
+    }
 }
 
 void MainWindow::writeCostsRecordToDataBase()
@@ -462,7 +483,6 @@ void MainWindow::showProfitInEdit()
     int requiredId = 1;
     float totalSum;
     totalSum = sqlManager.selectTotalSumInPeriod(defCategoryRegisterTable, firstDate, secondDate, requiredId);
-    int uu = 5;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

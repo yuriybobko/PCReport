@@ -365,14 +365,14 @@
     <widget class="QLabel" name="LblBasicWageKoefSalary">
      <property name="geometry">
       <rect>
-       <x>90</x>
+       <x>70</x>
        <y>50</y>
-       <width>161</width>
+       <width>181</width>
        <height>16</height>
       </rect>
      </property>
      <property name="text">
-      <string>Основная ставка сотрудника:</string>
+      <string>Коэффициент ставки сотрудника:</string>
      </property>
     </widget>
    </widget>

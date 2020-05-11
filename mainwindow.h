@@ -66,6 +66,7 @@ private slots:
     void clearCostsTabEdits(); // Очистить все текстовые поля во вкладке расходов
 
     void writeDefCategoryRecordToDataBase(); // Сделать запись в реестре категорий
+    void writeSalaryRecordToDataBase(); // Сделать запись в реестр зарплат
     void writeCostsRecordToDataBase(); // Сделать запись в реестре расходов
 
     void showProfitInEdit();

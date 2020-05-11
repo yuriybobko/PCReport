@@ -8,7 +8,7 @@ FormBtnCategory::FormBtnCategory(int formId, QString category, QWidget *parent) 
     ui->setupUi(this);
 
     m_formId = formId;
-    ui->LblCategory->setText(category);
+    ui->LblCategory->setText(QString::number(m_formId) + " - " + category);
 
 
     /*connect(ui->BtnRemove, &QPushButton::clicked, [this]()
@@ -31,7 +31,7 @@ FormBtnCategory::FormBtnCategory(int formId, QString category, QString tax, QWid
     ui->setupUi(this);
 
     m_formId = formId;
-    ui->LblCategory->setText(category);
+    ui->LblCategory->setText(QString::number(m_formId + 1) + " - " + category);
     ui->LblTax->setText(tax);
 
     connect(ui->BtnShow, &QPushButton::clicked, [this]()

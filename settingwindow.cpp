@@ -11,6 +11,9 @@ DefCategoriesTable defCategoriesTable;
 DefCategoryRegisterView defCategoryRegisterView;
 DefCategoryRegisterTable defCategoryRegisterTable;
 CostsRegisterTable costsRegisterTable;
+CostsRegisterView costsRegisterView;
+SalaryRegisterTable salaryRegisterTable;
+SalaryRegisterView salaryRegisterView;
 
 SettingWindow::SettingWindow(QWidget *parent) :
     QDialog(parent),
@@ -25,7 +28,7 @@ SettingWindow::SettingWindow(QWidget *parent) :
     ui->EditDataBaseDir->setText(dataBaseFile);
     ui->EditBasicWage->setText(QString::number(basicWage));
     ui->EditBasicWage->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
-    ui->EditBasicWageKoefSalary->setText(QString::number(basicWageKoefSalary));
+    ui->EditBasicWageKoefSalary->setText(QString::number(koefBasicWage));
     ui->EditBasicWageKoefSalary->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
 
 
@@ -79,7 +82,7 @@ void SettingWindow::readSettings()
     setting.endGroup();
     setting.beginGroup("SALARY_PARAMETERS");
     basicWage = setting.value("basicWage", DEFAULT_BASIC_WAGE).toFloat();
-    basicWageKoefSalary = setting.value("basicWageKoefSalary", DEFAULT_BASIC_WAGE_KOEF_SALARY).toFloat();
+    koefBasicWage = setting.value("basicWageKoefSalary", DEFAULT_BASIC_WAGE_KOEF_SALARY).toFloat();
     setting.endGroup();
 }
 
@@ -92,7 +95,7 @@ void SettingWindow::writeSettings()
     setting.endGroup();
     setting.beginGroup("SALARY_PARAMETERS");
     setting.setValue("basicWage", basicWage);
-    setting.setValue("basicWageKoefSalary", basicWageKoefSalary);
+    setting.setValue("basicWageKoefSalary", koefBasicWage);
     setting.endGroup();
 }
 

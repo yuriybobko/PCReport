@@ -19,11 +19,21 @@ struct DefinedCategory {
     bool isContracted;
 };
 
+struct DefinedCategoryRecord {
+    int categoryId;
+    int taxId;
+    int selfcoast;
+    float koefSalary;
+    float koefProfit;
+    int isSelling;
+    int isContracted;
+};
+
 struct DefCategoryRegisterRecord {
     int id;
-    QString date;
-    int stafferId;
-    int categoryId;
+    QString date = "0";
+    int stafferId = 0;
+    int categoryId = 0;
     int taxId;
     int cashId;
     float amount;
@@ -31,10 +41,20 @@ struct DefCategoryRegisterRecord {
 };
 
 struct CostsRegisterRecord {
+    int id;
     QString date;
     int cashId;
     float amount;
     QString description;
+};
+
+struct SalaryRegisterRecord {
+    int id;
+    QString date;
+    int stafferId;
+    float amount;
+    float basicWage;
+    float koefBasicWage;
 };
 
 //struct DataBaseTables {
@@ -133,4 +153,37 @@ struct CostsRegisterTable {
     const QString description = "description";
 };
 extern CostsRegisterTable costsRegisterTable;
+
+struct CostsRegisterView {
+    const QString table = "costs_register_view";
+    const QString id = "id";
+    const QString date = "date_value";
+    const QString cash = "cash";
+    const QString amount = "amount";
+    const QString description = "description";
+};
+extern CostsRegisterView costsRegisterView;
+
+struct SalaryRegisterTable {
+    const QString table = "salary_register";
+    const QString id = "id";
+    const QString date = "date_value";
+    const QString staffer = "staffer_id";
+    const QString amount = "amount";
+    const QString basicWage = "basic_wage";
+    const QString koefBasicWage = "koef_basic_wage";
+};
+extern SalaryRegisterTable salaryRegisterTable;
+
+struct SalaryRegisterView {
+    const QString table = "salary_register_view";
+    const QString id = "id";
+    const QString date = "date_value";
+    const QString staffer = "staffer";
+    const QString amount = "amount";
+    const QString basicWage = "basic_wage";
+    const QString koefBasicWage = "koef_basic_wage";
+};
+extern SalaryRegisterView salaryRegisterView;
+
 #endif // STUCTURES_H

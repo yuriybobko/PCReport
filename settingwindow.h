@@ -34,7 +34,8 @@ public:
 public:
     QString dataBaseFile;
     float basicWage;
-    float basicWageKoefSalary;
+    //float basicWageKoefSalary;
+    float koefBasicWage;
 
 public slots:
     // Методы для настроек

@@ -37,17 +37,34 @@ public slots:
 
     bool insertIntoDefCategoryRegisterTable(DefCategoryRegisterTable defCtgryRegTable,
                                             DefCategoryRegisterRecord defCtgryRegRecord);
+    bool insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord);
     bool insertIntoCostsRegisterTable(CostsRegisterTable costsRegTable, CostsRegisterRecord costsRegRecord);
+    bool updateRecordInSalaryRegisterTable(SalaryRegisterRecord SalaryRegRecord);
+
+    float calcSalary(QVector <DefCategoryRegisterRecord> defCtgryRegRecordVector,
+                     QVector<DefinedCategoryRecord> defCtgryRecordVector,
+                     SalaryRegisterRecord oldSalaryRegRecord);
 
     // Выбрать сумму за определенный период
     float selectTotalSumInPeriod(DefCategoryRegisterTable defCtgryRegTable,
                                  QString firstDate, QString secondDate, int requiredId);
     // Выбрать заданное поле из таблицы
     QVector <QString> selectTitlesFromTable(QString table, QString title);
-    // Выбрать заданную пользователем категорию через представление-таблицу
+    // Выбрать заданную пользователем категорию через представление-таблицу реестра категорий
     QVector <DefinedCategory> selectDefCategory(DefCategoriesView defCtgrsView);
+    // Выбрать заданную пользователем категорию через представление-таблицу реестра категорий
+    QVector <DefinedCategoryRecord> selectDefCategoryRecord(QVector<DefCategoryRegisterRecord>
+                                                            defCtgryRegRecordVector);
+    // Выбрать запись из реестра категорий по заданной дате и id сотрудника
+    QVector <DefCategoryRegisterRecord> selectDefCategoryRegRecord(QString date, int stafferId);
+    // Выбрать запись из реестра зарплат по заданной дате и id сотрудника
+    SalaryRegisterRecord selectSalaryRecord(QString date, int stafferId);
     //Выбрать id из таблицы
     int selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle);
+
+    // Проверка существования записи с текущей датой и сотрудником
+    bool isSalaryRecordExist(SalaryRegisterTable salaryRegTable, SalaryRegisterRecord salaryRegRecord);
+
 
 private:
     bool openDataBase(QString databaseFile);
@@ -67,6 +84,11 @@ private:
                                        DefCategoryRegisterTable defCtgryRegTable, StaffersTable staffersTable,
                                        CategoriesTable ctgryTable, TaxesTable taxesTable, CashTable cashTable);
     bool createCostsRegisterTable(CostsRegisterTable costsRegTable, CashTable cashTable);
+    bool createCostsRegisterView(CostsRegisterView costsRegView, CostsRegisterTable costsRegTable,
+                                 CashTable cashTable);
+    bool createSalaryRegisterTable(SalaryRegisterTable salaryRegTable, StaffersTable staffersTable);
+    bool createSalaryRegisterView(SalaryRegisterView salaryRegView, SalaryRegisterTable salaryRegTable,
+                                 StaffersTable staffersTable);
 
 private:
     QSqlDatabase dataBase;
