@@ -20,6 +20,7 @@ struct DefinedCategory {
 };
 
 struct DefinedCategoryRecord {
+    int id;
     int categoryId;
     int taxId;
     int selfcoast;

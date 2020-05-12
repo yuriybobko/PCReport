@@ -76,9 +76,9 @@ bool SqlManager::insertIntoOneTitleTable(const QString table, const QString titl
            return false;
 }
 
-bool SqlManager::insertIntoDefCategoryTable(DefCategoriesTable defCtgryTable, int categoryId, int taxId,
-                                            DefinedCategory defCtgry)
+bool SqlManager::insertIntoDefCategoryTable(int categoryId, int taxId, DefinedCategory defCtgry)
 {
+    DefCategoriesTable defCtgryTable;
     QSqlQuery query;
     QString queryString = "SELECT " + defCtgryTable.title + ", " + defCtgryTable.tax + " FROM "
             + defCtgryTable.table +
@@ -106,9 +106,9 @@ bool SqlManager::insertIntoDefCategoryTable(DefCategoriesTable defCtgryTable, in
     return false;
 }
 
-bool SqlManager::insertIntoDefCategoryRegisterTable(DefCategoryRegisterTable defCtgryRegTable,
-                                                    DefCategoryRegisterRecord defCtgryRegRecord)
+bool SqlManager::insertIntoDefCategoryRegisterTable(DefCategoryRegisterRecord defCtgryRegRecord)
 {
+    DefCategoryRegisterTable defCtgryRegTable;
     QSqlQuery query;
     QString queryString = "INSERT INTO " + defCtgryRegTable.table + " (" +
             defCtgryRegTable.date + ", " + defCtgryRegTable.staffer + ", " +
@@ -141,7 +141,6 @@ bool SqlManager::insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRec
             salaryRegTable.koefBasicWage + ")" +
              " VALUES (:date, :stafferId, :amount, :basicWage, :koefBasicWage)" +
             ";";
-    qDebug() << queryString;
     if (query.prepare(queryString)) {
         query.bindValue(":date", salaryRegRecord.date);
         query.bindValue(":stafferId", salaryRegRecord.stafferId);
@@ -154,8 +153,9 @@ bool SqlManager::insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRec
     return false;
 }
 
-bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterTable costsRegTable, CostsRegisterRecord costsRegRecord)
+bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterRecord costsRegRecord)
 {
+    CostsRegisterTable costsRegTable;
     QSqlQuery query;
     QString queryString = "INSERT INTO " + costsRegTable.table + " (" +
             costsRegTable.date + ", " + costsRegTable.cash + ", " +
@@ -207,7 +207,7 @@ float SqlManager::calcSalary(QVector<DefCategoryRegisterRecord> defCtgryRegRecor
     for (int ii = 0; ii < defCtgryRegRecordVector.size(); ii++) {
         float adtnlSum = (defCtgryRegRecordVector.at(ii).amount -
                           defCtgryRegRecordVector.at(ii).selfcoast)*defCtgryRecordVector.at(ii).koefSalary;
-        if (defCtgryRecordVector.at(ii).isSelling) {
+        if (!defCtgryRecordVector.at(ii).isSelling) {
             adtnlSum *= defCtgryRecordVector.at(ii).koefProfit;
         }
         salary += adtnlSum;
@@ -216,22 +216,20 @@ float SqlManager::calcSalary(QVector<DefCategoryRegisterRecord> defCtgryRegRecor
     return salary;
 }
 
-float SqlManager::selectTotalSumInPeriod(DefCategoryRegisterTable defCtgryRegTable,
-                                         QString firstDate, QString secondDate, int requiredId)
+float SqlManager::selectTotalSumInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId)
 {
+    DefCategoryRegisterTable defCtgryRegTable;
     float totalSum = 0;
     QSqlQuery query;
-    QString queryString = "SELECT sum(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
+    QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
             " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
-            "AND " + defCtgryRegTable.category + " = :requiredId;";
-
-    qDebug() << queryString;
-    QString fD = "2020-02-07";
-    QString sD = "2020-02-09";
+            "AND " + defCtgryRegTable.category + " = :categoryId "
+            "AND " + defCtgryRegTable.tax + " = :taxId;";
     if (query.prepare(queryString)) {
         query.bindValue(":firstDate", firstDate);
         query.bindValue(":secondDate", secondDate);
-        query.bindValue(":requiredId", requiredId);
+        query.bindValue(":categoryId", categoryId);
+        query.bindValue(":taxId", taxId);
 
         if (query.exec()) {
             while (query.next()) {
@@ -240,6 +238,87 @@ float SqlManager::selectTotalSumInPeriod(DefCategoryRegisterTable defCtgryRegTab
         }
     }
     return totalSum;
+}
+
+float SqlManager::selectTotalSelfcoastInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId)
+{
+    DefCategoryRegisterTable defCtgryRegTable;
+    float totalSelfcoast = 0;
+    QSqlQuery query;
+    QString queryString = "SELECT SUM(" + defCtgryRegTable.selfcoast +  ") FROM " + defCtgryRegTable.table +
+            " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
+            "AND " + defCtgryRegTable.category + " = :categoryId "
+            "AND " + defCtgryRegTable.tax + " = :taxId;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        query.bindValue(":categoryId", categoryId);
+        query.bindValue(":taxId", taxId);
+
+        if (query.exec()) {
+            while (query.next()) {
+                totalSelfcoast = query.value(0).toFloat();
+            }
+        }
+    }
+    return totalSelfcoast;
+}
+
+float SqlManager::selectTotalSalaryInPeriod(QString firstDate, QString secondDate)
+{
+    DefCategoryRegisterTable defCtgryRegTable;
+    float totalSalary = 0;
+    QSqlQuery query;
+    QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
+            " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                totalSalary = query.value(0).toFloat();
+            }
+        }
+    }
+    return totalSalary;
+}
+
+float SqlManager::selectTotalCostsInPeriod(QString firstDate, QString secondDate)
+{
+    CostsRegisterTable costsRegTable;
+    float totalCosts = 0;
+    QSqlQuery query;
+    QString queryString = "SELECT SUM(" + costsRegTable.amount +  ") FROM " + costsRegTable.table +
+            " WHERE " + costsRegTable.date + " BETWEEN :firstDate AND :secondDate;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                totalCosts = query.value(0).toFloat();
+            }
+        }
+    }
+    return totalCosts;
+}
+
+int SqlManager::selectMaxCategoryIdInPeriod(QString firstDate, QString secondDate)
+{
+    DefCategoryRegisterTable defCtgryRegTable;
+    int maxCategoryId = 0;
+    QSqlQuery query;
+    QString queryString = "SELECT MAX(" + defCtgryRegTable.category +  ") FROM " + defCtgryRegTable.table +
+            " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                maxCategoryId = query.value(0).toInt();
+            }
+        }
+    }
+    return maxCategoryId;
 }
 
 QVector<QString> SqlManager::selectTitlesFromTable(QString table, QString title)
@@ -261,8 +340,9 @@ QVector<QString> SqlManager::selectTitlesFromTable(QString table, QString title)
     return titleVector;
 }
 
-QVector<DefinedCategory> SqlManager::selectDefCategory(DefCategoriesView defCtgrsView)
+QVector<DefinedCategory> SqlManager::selectDefCategory()
 {
+    DefCategoriesView defCtgrsView;
     QVector<DefinedCategory> defCategoryVector;
     QSqlQuery query;
     if (query.exec("SELECT * FROM " + defCtgrsView.table)) {
@@ -290,9 +370,35 @@ QVector<DefinedCategory> SqlManager::selectDefCategory(DefCategoriesView defCtgr
 
     }
     else {
-        //emit signalToStatusBar("Не удалось прочитать");
         qDebug() << "Не удалось прочитать " + defCtgrsView.table;
     }
+    return defCategoryVector;
+}
+
+QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord()
+{
+    QVector<DefinedCategoryRecord> defCategoryVector;
+    DefCategoriesTable defCtgryTable;
+        QSqlQuery query;
+        QString queryString = "SELECT * FROM " + defCtgryTable.table +
+                ";";
+        if (query.prepare(queryString)) {
+            if (query.exec()) {
+                while (query.next()) {
+                    DefinedCategoryRecord defCategory;
+                    int kk = 0;
+                    defCategory.id = query.value(kk).toInt(); kk++;
+                    defCategory.categoryId = query.value(kk).toInt(); kk++;
+                    defCategory.taxId = query.value(kk).toInt(); kk++;
+                    defCategory.selfcoast = query.value(kk).toInt(); kk++;
+                    defCategory.koefSalary = query.value(kk).toFloat(); kk++;
+                    defCategory.koefProfit = query.value(kk).toFloat(); kk++;
+                    defCategory.isSelling = query.value(kk).toInt(); kk++;
+                    defCategory.isContracted = query.value(kk).toInt(); kk++;
+                    defCategoryVector.append(defCategory);
+                }
+            }
+        }
     return defCategoryVector;
 }
 
@@ -312,7 +418,8 @@ QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord(QVector<DefCa
             if (query.exec()) {
                 while (query.next()) {
                     DefinedCategoryRecord defCategory;
-                    int kk = 1;
+                    int kk = 0;
+                    defCategory.id = query.value(kk).toInt(); kk++;
                     defCategory.categoryId = query.value(kk).toInt(); kk++;
                     defCategory.taxId = query.value(kk).toInt(); kk++;
                     defCategory.selfcoast = query.value(kk).toInt(); kk++;
@@ -325,12 +432,10 @@ QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord(QVector<DefCa
             }
         }
     }
-
     return defCategoryVector;
 }
 
-QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QString date,
-                                                                       int stafferId)
+QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QString date, int stafferId)
 {
     QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector;
     DefCategoryRegisterTable defCtgryRegTable;
@@ -404,8 +509,8 @@ int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableT
 //    QString queryStrigng = "SELECT " + tableId + " FROM " + table +
 //            " WHERE " + tableTitle + " = '" + requiredTitle + "'";
 
-        QString queryStrigng = "SELECT " + tableId + " FROM " + table +
-                " WHERE " + tableTitle + " = :requiredTitle;";
+    QString queryStrigng = "SELECT " + tableId + " FROM " + table +
+            " WHERE " + tableTitle + " = :requiredTitle;";
 
     if (query.prepare(queryStrigng)) {
         query.bindValue(":requiredTitle", requiredTitle);
@@ -416,14 +521,14 @@ int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableT
         }
     }
     else {
-        //emit signalToStatusBar("Не удалось прочитать");
         qDebug() << "Не удалось найти id для " + tableTitle + " из " + table;
     }
     return id;
 }
 
-bool SqlManager::isSalaryRecordExist(SalaryRegisterTable salaryRegTable, SalaryRegisterRecord salaryRegRecord)
+bool SqlManager::isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord)
 {
+    SalaryRegisterTable salaryRegTable;
     bool isRecordExist = false;
     QSqlQuery query;
     QString queryStrigng = "SELECT " + salaryRegTable.date + ", " + salaryRegTable.staffer +
@@ -501,23 +606,21 @@ bool SqlManager::createTables()
     }
     this->insertIntoOneTitleTable(cashTable.table, cashTable.title, CASH_STRING);
     this->insertIntoOneTitleTable(cashTable.table, cashTable.title, NONCASH_STRING);
-    if (!this->createDefCategoriesTable(defCategoriesTable, categoriesTable, taxesTable))
+    if (!this->createDefCategoriesTable())
         result = false;
-    if (!this->createDefCategoriesView(defCategoriesView, defCategoriesTable, categoriesTable, taxesTable))
+    if (!this->createDefCategoriesView())
         result = false;
-    if (!this->createDefCategoryRegisterTable(defCategoryRegisterTable, staffersTable, categoriesTable,
-                                              taxesTable, cashTable))
+    if (!this->createDefCategoryRegisterTable())
         result = false;
-    if (!this->createDefCategoryRegisterView(defCategoryRegisterView, defCategoryRegisterTable, staffersTable,
-                                             categoriesTable, taxesTable, cashTable))
+    if (!this->createDefCategoryRegisterView())
         result = false;
-    if (!this->createCostsRegisterTable(costsRegisterTable, cashTable))
+    if (!this->createCostsRegisterTable())
         result = false;
-    if (!this->createCostsRegisterView(costsRegisterView, costsRegisterTable, cashTable))
+    if (!this->createCostsRegisterView())
         result = false;
-    if (!this->createSalaryRegisterTable(salaryRegisterTable, staffersTable))
+    if (!this->createSalaryRegisterTable())
         result = false;
-    if (!this->createSalaryRegisterView(salaryRegisterView, salaryRegisterTable, staffersTable))
+    if (!this->createSalaryRegisterView())
         result = false;
     return result;
 }
@@ -535,9 +638,11 @@ bool SqlManager::createOneTitleTable(QString table, QString id, QString title)
         return false;
 }
 
-bool SqlManager::createDefCategoriesTable(DefCategoriesTable defCtgryTable,
-                                          CategoriesTable ctgryTable, TaxesTable taxesTable)
+bool SqlManager::createDefCategoriesTable()
 {
+    DefCategoriesTable defCtgryTable;
+    CategoriesTable ctgryTable;
+    TaxesTable taxesTable;
     QSqlQuery query;
     QString queryString = "CREATE TABLE " + defCtgryTable.table + " (" +
             defCtgryTable.id + " INTEGER PRIMARY KEY, " +
@@ -560,9 +665,12 @@ bool SqlManager::createDefCategoriesTable(DefCategoriesTable defCtgryTable,
         return false;
 }
 
-bool SqlManager::createDefCategoriesView(DefCategoriesView defCtgryView, DefCategoriesTable defCtgryTable,
-                                         CategoriesTable ctgryTable, TaxesTable taxesTable)
+bool SqlManager::createDefCategoriesView()
 {
+    DefCategoriesView defCtgryView;
+    DefCategoriesTable defCtgryTable;
+    CategoriesTable ctgryTable;
+    TaxesTable taxesTable;
     QSqlQuery query;
     QString queryString = "CREATE VIEW " + defCtgryView.table + " AS "
             "SELECT " + defCtgryTable.table + "." + defCtgryTable.id + " AS " + defCtgryView.id + ", " +
@@ -587,10 +695,13 @@ bool SqlManager::createDefCategoriesView(DefCategoriesView defCtgryView, DefCate
         return false;
 }
 
-bool SqlManager::createDefCategoryRegisterTable(DefCategoryRegisterTable defCtgryRegTable,
-                                                StaffersTable staffersTable, CategoriesTable ctgryTable,
-                                                TaxesTable taxesTable, CashTable cashTable)
+bool SqlManager::createDefCategoryRegisterTable()
 {
+    DefCategoryRegisterTable defCtgryRegTable;
+    StaffersTable staffersTable;
+    CategoriesTable ctgryTable;
+    TaxesTable taxesTable;
+    CashTable cashTable;
     QSqlQuery query;
     QString queryString = "CREATE TABLE " + defCtgryRegTable.table + " (" +
             defCtgryRegTable.id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -617,12 +728,14 @@ bool SqlManager::createDefCategoryRegisterTable(DefCategoryRegisterTable defCtgr
         return false;
 }
 
-bool SqlManager::createDefCategoryRegisterView(DefCategoryRegisterView defCtgryRegView,
-                                               DefCategoryRegisterTable defCtgryRegTable,
-                                               StaffersTable staffersTable, CategoriesTable ctgryTable,
-                                                TaxesTable taxesTable,
-                                               CashTable cashTable)
+bool SqlManager::createDefCategoryRegisterView()
 {
+    DefCategoryRegisterView defCtgryRegView;
+    DefCategoryRegisterTable defCtgryRegTable;
+    StaffersTable staffersTable;
+    CategoriesTable ctgryTable;
+    TaxesTable taxesTable;
+    CashTable cashTable;
     QSqlQuery query;
     QString queryString = "CREATE VIEW " + defCtgryRegView.table + " AS "
             "SELECT " + defCtgryRegTable.table + "." + defCtgryRegTable.id + " AS " + defCtgryRegView.id + ", " +
@@ -654,8 +767,10 @@ bool SqlManager::createDefCategoryRegisterView(DefCategoryRegisterView defCtgryR
         return false;
 }
 
-bool SqlManager::createCostsRegisterTable(CostsRegisterTable costsRegTable, CashTable cashTable)
+bool SqlManager::createCostsRegisterTable()
 {
+    CostsRegisterTable costsRegTable;
+    CashTable cashTable;
     QSqlQuery query;
     QString queryString = "CREATE TABLE " + costsRegTable.table + " (" +
             costsRegTable.id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -673,9 +788,11 @@ bool SqlManager::createCostsRegisterTable(CostsRegisterTable costsRegTable, Cash
         return false;
 }
 
-bool SqlManager::createCostsRegisterView(CostsRegisterView costsRegView, CostsRegisterTable costsRegTable,
-                                         CashTable cashTable)
+bool SqlManager::createCostsRegisterView()
 {
+    CostsRegisterView costsRegView;
+    CostsRegisterTable costsRegTable;
+    CashTable cashTable;
     QSqlQuery query;
     QString queryString = "CREATE VIEW " + costsRegView.table + " AS "
             "SELECT " + costsRegTable.table + "." + costsRegTable.id + " AS " + costsRegView.id + ", " +
@@ -695,8 +812,10 @@ bool SqlManager::createCostsRegisterView(CostsRegisterView costsRegView, CostsRe
         return false;
 }
 
-bool SqlManager::createSalaryRegisterTable(SalaryRegisterTable salaryRegTable, StaffersTable staffersTable)
+bool SqlManager::createSalaryRegisterTable()
 {
+    SalaryRegisterTable salaryRegTable;
+    StaffersTable staffersTable;
     QSqlQuery query;
     QString queryString = "CREATE TABLE " + salaryRegTable.table + " (" +
             salaryRegTable.id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -715,9 +834,11 @@ bool SqlManager::createSalaryRegisterTable(SalaryRegisterTable salaryRegTable, S
         return false;
 }
 
-bool SqlManager::createSalaryRegisterView(SalaryRegisterView salaryRegView, SalaryRegisterTable salaryRegTable,
-                                          StaffersTable staffersTable)
+bool SqlManager::createSalaryRegisterView()
 {
+    SalaryRegisterView salaryRegView;
+    SalaryRegisterTable salaryRegTable;
+    StaffersTable staffersTable;
     QSqlQuery query;
     QString queryString = "CREATE VIEW " + salaryRegView.table + " AS "
             "SELECT " + salaryRegTable.table + "." + salaryRegTable.id + " AS " + salaryRegView.id + ", " +

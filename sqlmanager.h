@@ -32,26 +32,34 @@ signals:
 
 public slots:
     bool insertIntoOneTitleTable(const QString table, const QString title, const QString value);
-    bool insertIntoDefCategoryTable(DefCategoriesTable defCtgryTable, int categoryId, int taxId,
+    bool insertIntoDefCategoryTable(int categoryId, int taxId,
                                     DefinedCategory defCtgry);
 
-    bool insertIntoDefCategoryRegisterTable(DefCategoryRegisterTable defCtgryRegTable,
-                                            DefCategoryRegisterRecord defCtgryRegRecord);
+    bool insertIntoDefCategoryRegisterTable(DefCategoryRegisterRecord defCtgryRegRecord);
     bool insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord);
-    bool insertIntoCostsRegisterTable(CostsRegisterTable costsRegTable, CostsRegisterRecord costsRegRecord);
+    bool insertIntoCostsRegisterTable(CostsRegisterRecord costsRegRecord);
     bool updateRecordInSalaryRegisterTable(SalaryRegisterRecord SalaryRegRecord);
 
     float calcSalary(QVector <DefCategoryRegisterRecord> defCtgryRegRecordVector,
                      QVector<DefinedCategoryRecord> defCtgryRecordVector,
                      SalaryRegisterRecord oldSalaryRegRecord);
 
-    // Выбрать сумму за определенный период
-    float selectTotalSumInPeriod(DefCategoryRegisterTable defCtgryRegTable,
-                                 QString firstDate, QString secondDate, int requiredId);
+    // Выбрать сумму за определенный период из реестра категорий по заданному id категории и налога
+    float selectTotalSumInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId);
+    // Выбрать себестоимость за определенный период из реестра категорий по заданному id категории и налога
+    float selectTotalSelfcoastInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId);
+    // Выбрать сумму за определенный период из реестра категорий по заданному id категории и налога
+    float selectTotalSalaryInPeriod(QString firstDate, QString secondDate);
+    // Выбрать максимальный id из таблицы заданных категорий в выбранный период
+    float selectTotalCostsInPeriod(QString firstDate, QString secondDate);
+    // Выбрать максимальный id из таблицы заданных категорий в выбранный период
+    int selectMaxCategoryIdInPeriod(QString firstDate, QString secondDate);
     // Выбрать заданное поле из таблицы
     QVector <QString> selectTitlesFromTable(QString table, QString title);
-    // Выбрать заданную пользователем категорию через представление-таблицу реестра категорий
-    QVector <DefinedCategory> selectDefCategory(DefCategoriesView defCtgrsView);
+    // Выбрать заданную пользователем категорию через представление-таблицу заданных категорий
+    QVector <DefinedCategory> selectDefCategory();
+    // Выбрать заданную пользователем категорию через таблицу заданных категорий
+    QVector <DefinedCategoryRecord> selectDefCategoryRecord();
     // Выбрать заданную пользователем категорию через представление-таблицу реестра категорий
     QVector <DefinedCategoryRecord> selectDefCategoryRecord(QVector<DefCategoryRegisterRecord>
                                                             defCtgryRegRecordVector);
@@ -63,7 +71,7 @@ public slots:
     int selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle);
 
     // Проверка существования записи с текущей датой и сотрудником
-    bool isSalaryRecordExist(SalaryRegisterTable salaryRegTable, SalaryRegisterRecord salaryRegRecord);
+    bool isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord);
 
 
 private:
@@ -72,23 +80,15 @@ private:
 
     bool createTables();
     bool createOneTitleTable(QString table, QString id, QString title);
-    bool createDefCategoriesTable(DefCategoriesTable defCtgryTable, CategoriesTable ctgryTable,
-                                  TaxesTable taxesTable);
-    bool createDefCategoriesView(DefCategoriesView defCtgryView, DefCategoriesTable defCtgryTable,
-                                 CategoriesTable ctgryTable, TaxesTable taxesTable);
+    bool createDefCategoriesTable();
+    bool createDefCategoriesView();
 
-    bool createDefCategoryRegisterTable(DefCategoryRegisterTable defCtgryRegTable, StaffersTable staffersTable,
-                                        CategoriesTable ctgryTable, TaxesTable taxesTable,
-                                        CashTable cashTable);
-    bool createDefCategoryRegisterView(DefCategoryRegisterView defCtgryRegView,
-                                       DefCategoryRegisterTable defCtgryRegTable, StaffersTable staffersTable,
-                                       CategoriesTable ctgryTable, TaxesTable taxesTable, CashTable cashTable);
-    bool createCostsRegisterTable(CostsRegisterTable costsRegTable, CashTable cashTable);
-    bool createCostsRegisterView(CostsRegisterView costsRegView, CostsRegisterTable costsRegTable,
-                                 CashTable cashTable);
-    bool createSalaryRegisterTable(SalaryRegisterTable salaryRegTable, StaffersTable staffersTable);
-    bool createSalaryRegisterView(SalaryRegisterView salaryRegView, SalaryRegisterTable salaryRegTable,
-                                 StaffersTable staffersTable);
+    bool createDefCategoryRegisterTable();
+    bool createDefCategoryRegisterView();
+    bool createCostsRegisterTable();
+    bool createCostsRegisterView();
+    bool createSalaryRegisterTable();
+    bool createSalaryRegisterView();
 
 private:
     QSqlDatabase dataBase;

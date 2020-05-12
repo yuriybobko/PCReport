@@ -159,7 +159,7 @@ void SettingWindow::connectToDataBase(QString dbFile)
     m_staffer = sqlManager.selectTitlesFromTable(staffersTable.table, staffersTable.name);
     m_category = sqlManager.selectTitlesFromTable(categoriesTable.table, categoriesTable.title);
     m_tax = sqlManager.selectTitlesFromTable(taxesTable.table, taxesTable.title);
-    m_defCategory = sqlManager.selectDefCategory(defCategoriesView);
+    m_defCategory = sqlManager.selectDefCategory();
 }
 
 void SettingWindow::editWidgets()
@@ -509,7 +509,7 @@ void SettingWindow::setDefCategory()
                                                     taxesTable.title, defCtgry.taxTitle);
 //        sqlManager.insertIntoDefCategoryTable(defCategoriesTable, categoryId, taxId, (int) defCtgry.selfcoast,
 //                                              defCtgry.koefSalary, defCtgry.koefProfit);
-        sqlManager.insertIntoDefCategoryTable(defCategoriesTable, categoryId, taxId, defCtgry);
+        sqlManager.insertIntoDefCategoryTable(categoryId, taxId, defCtgry);
     }
     emit signalToEditFormBtnCategory(m_defCategory);
 }

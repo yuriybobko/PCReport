@@ -411,7 +411,7 @@ void MainWindow::writeDefCategoryRecordToDataBase()
                 }
             }
             if (isRecordExist) {
-                if (sqlManager.insertIntoDefCategoryRegisterTable(defCategoryRegisterTable, defCtgryRegRecord)) {
+                if (sqlManager.insertIntoDefCategoryRegisterTable(defCtgryRegRecord)) {
                     //this->showStatusBar("Запись в реестр категорий выполнена");
                 }
                 else {
@@ -444,7 +444,7 @@ void MainWindow::writeSalaryRecordToDataBase()
     salaryRegRecord.basicWage = m_settingWndw->basicWage;
     salaryRegRecord.koefBasicWage = m_settingWndw->koefBasicWage;
 
-    if (!sqlManager.isSalaryRecordExist(salaryRegisterTable, salaryRegRecord))
+    if (!sqlManager.isSalaryRecordExist(salaryRegRecord))
         sqlManager.insertIntoSalaryRegisterTable(salaryRegRecord);
     else {
         sqlManager.updateRecordInSalaryRegisterTable(salaryRegRecord);
@@ -466,7 +466,7 @@ void MainWindow::writeCostsRecordToDataBase()
                                                                    cashTable.title, cashString);
         costsRegRecord.amount = ui->EditCostsTotalSum->text().toFloat();
         costsRegRecord.description = ui->TextEditCostsDescr->toPlainText();
-        if (sqlManager.insertIntoCostsRegisterTable(costsRegisterTable, costsRegRecord))
+        if (sqlManager.insertIntoCostsRegisterTable(costsRegRecord))
             this->showStatusBar("Запись в реестр расходов выполнена");
         else
             this->showStatusBar("Не удается выполнить запись в реестр расходов");
@@ -480,9 +480,24 @@ void MainWindow::showProfitInEdit()
 {
     QString firstDate = ui->LblFromDate->text();
     QString secondDate = ui->LblToDate->text();
-    int requiredId = 1;
-    float totalSum;
-    totalSum = sqlManager.selectTotalSumInPeriod(defCategoryRegisterTable, firstDate, secondDate, requiredId);
+    float netSum = 0;
+    QVector <DefinedCategoryRecord> defCategoryRecord = sqlManager.selectDefCategoryRecord();
+    for (int ii = 0; ii < defCategoryRecord.size(); ii++) {
+        float totalSum = 0;
+        int categoryId = defCategoryRecord.at(ii).categoryId;
+        int taxId = defCategoryRecord.at(ii).taxId;
+        totalSum = sqlManager.selectTotalSumInPeriod(firstDate, secondDate, categoryId, taxId);
+        float totalSelfcoast = 0;
+        totalSelfcoast = sqlManager.selectTotalSelfcoastInPeriod(firstDate, secondDate, categoryId, taxId);
+        netSum += (totalSum - totalSelfcoast)*defCategoryRecord.at(ii).koefProfit;
+    }
+    float totalSalary = 0;
+    totalSalary = sqlManager.selectTotalSalaryInPeriod(firstDate, secondDate);
+    float totalCosts = 0;
+    totalCosts = sqlManager.selectTotalCostsInPeriod(firstDate, secondDate);
+    float totalProfit = netSum - (totalSalary + totalCosts);
+    ui->TextEditProfit->setText("Прибыль за период с " + firstDate + " по " + secondDate + "\n"
+                                "составила " + QString::number(totalProfit) + " руб.");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
