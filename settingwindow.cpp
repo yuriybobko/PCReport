@@ -64,12 +64,15 @@ SettingWindow::SettingWindow(QWidget *parent) :
 
     connect(ui->BtnAddDefCategory, SIGNAL(clicked()), this, SLOT(addDefCategory()));
 
+    ui->TableViewDefCategory->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     this->hide();
 }
 
 SettingWindow::~SettingWindow()
 {
+    if (m_defCategoryModel)
+        delete m_defCategoryModel;
     delete ui;
 }
 

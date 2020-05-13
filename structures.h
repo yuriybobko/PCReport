@@ -41,10 +41,29 @@ struct DefCategoryRegisterRecord {
     float selfcoast;
 };
 
+struct DefCategoryRegisterRecordView {
+    int id;
+    QString date = "0";
+    QString staffer;
+    QString category;
+    QString tax;
+    QString cash;
+    float amount;
+    float selfcoast;
+};
+
 struct CostsRegisterRecord {
     int id;
     QString date;
     int cashId;
+    float amount;
+    QString description;
+};
+
+struct CostsRegisterRecordView {
+    int id;
+    QString date;
+    QString cash;
     float amount;
     QString description;
 };

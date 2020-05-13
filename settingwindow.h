@@ -121,7 +121,6 @@ private:
     QVector <DefinedCategory> m_defCategory; // сохранить текущие созданные категории
 
     QStandardItemModel *m_defCategoryModel = nullptr;
-    //QStandardItemModel *m_defCategoryModelOld = nullptr;
 };
 
 #endif // SETTINGWINDOW_H

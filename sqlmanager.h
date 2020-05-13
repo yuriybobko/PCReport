@@ -65,10 +65,15 @@ public slots:
                                                             defCtgryRegRecordVector);
     // Выбрать запись из реестра категорий по заданной дате и id сотрудника
     QVector <DefCategoryRegisterRecord> selectDefCategoryRegRecord(QString date, int stafferId);
+    // Выбрать записи из представления-таблицы реестре категорий в заданный период времени
+    QVector <DefCategoryRegisterRecordView> selectDefCategoryRegRecordView(QString firstDate, QString secondDate);
     // Выбрать запись из реестра зарплат по заданной дате и id сотрудника
     SalaryRegisterRecord selectSalaryRecord(QString date, int stafferId);
     //Выбрать id из таблицы
     int selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle);
+
+    // Удалить запись по id из реестра категорий
+    bool deleteInDefCategoryRegisterTable(int requiredId);
 
     // Проверка существования записи с текущей датой и сотрудником
     bool isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord);

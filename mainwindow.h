@@ -71,6 +71,17 @@ private slots:
 
     void showProfitInEdit();
 
+    void editTableView(); // Редактировать таблицу записей из реестров
+    void setDefCategoryRegisterInTableView(); // Задать таблицу из реестра категорий
+    // Добавить строку в таблицу записей из реестра категорий
+    void addRowInTableDefCategoryRegister(DefCategoryRegisterRecordView defCtgryRegRecordView);
+    void setCostsRegisterInTableView(); // Задать таблицу из реестра расходов
+    // Добавить строку в таблицу записей из реестра расходов
+    void addRowInTableCostsRegister(CostsRegisterRecordView costsRegRecordView);
+
+    // Удалить строку из таблицы записей
+    void removeRecordInTableView();
+
     // Методы событий
 
     void closeEvent(QCloseEvent *event);
@@ -93,5 +104,8 @@ private:
 
     QVector <FormBtnCategory *> m_FormBtnCategory;
     QVector <FormCategory *> m_FormCategory; 
+
+    QVector <DefCategoryRegisterRecordView> m_defCategoryRegRecordView;
+    QStandardItemModel *m_defCategoryRegisterModel = nullptr;
 };
 #endif // MAINWINDOW_H

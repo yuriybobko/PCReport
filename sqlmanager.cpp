@@ -471,6 +471,36 @@ QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QStrin
 
 }
 
+QVector<DefCategoryRegisterRecordView> SqlManager::selectDefCategoryRegRecordView(QString firstDate,
+                                                                                  QString secondDate)
+{
+    DefCategoryRegisterView defCtgryRegView;
+    QVector<DefCategoryRegisterRecordView> defCtgryRegRecViewVector;
+    QSqlQuery query;
+    QString queryString = "SELECT * FROM " + defCtgryRegView.table +
+            " WHERE " + defCtgryRegView.date + " BETWEEN :firstDate AND :secondDate;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                DefCategoryRegisterRecordView defCtgryRegRecView;
+                int kk = 0;
+                defCtgryRegRecView.id = query.value(kk).toInt(); kk++;
+                defCtgryRegRecView.date = query.value(kk).toString(); kk++;
+                defCtgryRegRecView.staffer = query.value(kk).toString(); kk++;
+                defCtgryRegRecView.category = query.value(kk).toString(); kk++;
+                defCtgryRegRecView.tax = query.value(kk).toString(); kk++;
+                defCtgryRegRecView.cash = query.value(kk).toString(); kk++;
+                defCtgryRegRecView.amount = query.value(kk).toFloat(); kk++;
+                defCtgryRegRecView.selfcoast = query.value(kk).toFloat(); kk++;
+                defCtgryRegRecViewVector.append(defCtgryRegRecView);
+            }
+        }
+    }
+    return defCtgryRegRecViewVector;
+}
+
 SalaryRegisterRecord SqlManager::selectSalaryRecord(QString date, int stafferId)
 {
     SalaryRegisterRecord salaryRegRecord;;
@@ -524,6 +554,27 @@ int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableT
         qDebug() << "Не удалось найти id для " + tableTitle + " из " + table;
     }
     return id;
+}
+
+bool SqlManager::deleteInDefCategoryRegisterTable(int requiredId)
+{
+    bool result = false;
+    DefCategoryRegisterTable defCtgryRegTable;
+    QSqlQuery query;
+    QString queryString = "DELETE FROM " + defCtgryRegTable.table +
+                        " WHERE " + defCtgryRegTable.id + " = :requiredId" +
+                        ";";
+
+    if (query.prepare(queryString)) {
+        query.bindValue(":requiredId", requiredId);
+        if (query.exec()) {
+            result = true;
+        }
+        else {
+            qDebug() << "Deleting from defcategory_register is enabled";
+        }
+    }
+    return result;
 }
 
 bool SqlManager::isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord)
