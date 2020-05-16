@@ -9,6 +9,12 @@
 #define CASH_STRING "нал."
 #define NONCASH_STRING "б/нал."
 
+enum RegisterType {
+    Register_defCategory,
+    Register_Salary,
+    Register_Costs,
+};
+
 struct DefinedCategory {
     QString categoryTitle;
     QString taxTitle;
@@ -72,6 +78,15 @@ struct SalaryRegisterRecord {
     int id;
     QString date;
     int stafferId;
+    float amount;
+    float basicWage;
+    float koefBasicWage;
+};
+
+struct SalaryRegisterRecordView {
+    int id;
+    QString date;
+    QString staffer;
     float amount;
     float basicWage;
     float koefBasicWage;

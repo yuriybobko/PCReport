@@ -7,7 +7,6 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    MainWindow w;
 
     QSystemSemaphore semaphore("phc_report_semaphore", 1);
     semaphore.acquire();
@@ -20,8 +19,11 @@ int main(int argc, char *argv[])
     else
     {
         sharedMemmory.create(1);
-        w.show();
     }
+
+    MainWindow w;
+    w.show();
+
     semaphore.release();
 
     return a.exec();

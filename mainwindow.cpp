@@ -64,7 +64,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->BtnShowProfit, SIGNAL(clicked()), this, SLOT(showProfitInEdit()));
 
+    // Показать табицу записей из реестров
     connect(ui->BtnShowTableView, SIGNAL(clicked()), this, SLOT(editTableView()));
+    // Удалить запись в таблице записей из реестров категорий
     connect(ui->BtnDeleteRecord, SIGNAL(clicked()), this, SLOT(removeRecordInTableView()));
 
     this->setChildWidgets();
@@ -166,7 +168,10 @@ void MainWindow::setChildWidgets()
     ui->EditCostsTotalSum->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
 
     ui->TableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    //ui->TabWidgetMain->setStyleSheet("background-color: rgb(235, 235, 235);");
+
+    ui->CmbBoxTableView->addItem("Записи категорий");
+    ui->CmbBoxTableView->addItem("Записи заработной платы");
+    ui->CmbBoxTableView->addItem("Записи расходов");
 }
 
 void MainWindow::addFormBtnCategory(QString strCategory)
@@ -529,82 +534,197 @@ void MainWindow::showProfitInEdit()
 
 void MainWindow::editTableView()
 {
-    this->setDefCategoryRegisterInTableView();
+    if (ui->CmbBoxTableView->currentIndex() == 0) {
+        this->setDefCategoryRegisterInTableView();
+        m_registerType = RegisterType::Register_defCategory;
+        ui->BtnDeleteRecord->setEnabled(true);
+    }
+    if (ui->CmbBoxTableView->currentIndex() == 1) {
+        this->setSalaryRegisterInTableView();
+        m_registerType = RegisterType::Register_Salary;
+        ui->BtnDeleteRecord->setEnabled(false);
+    }
+    if (ui->CmbBoxTableView->currentIndex() == 2) {
+        this->setCostsRegisterInTableView();
+        m_registerType = RegisterType::Register_Costs;
+        ui->BtnDeleteRecord->setEnabled(true);
+    }
 }
 
 void MainWindow::setDefCategoryRegisterInTableView()
 {
     QString firstDate = ui->LblTabViewFromDate->text();
     QString secondDate = ui->LblTabViewToDate->text();
-    m_defCategoryRegRecordView = sqlManager.selectDefCategoryRegRecordView(firstDate, secondDate);
+    QVector <DefCategoryRegisterRecordView> defCategoryRegRecordView =
+            sqlManager.selectDefCategoryRegRecordView(firstDate, secondDate);
 
     ui->TableView->clearSpans();
 
-    if (m_defCategoryRegisterModel != nullptr)
-        delete m_defCategoryRegisterModel;
-    m_defCategoryRegisterModel = new QStandardItemModel(0, 7, ui->TableView);
-    ui->TableView->setModel(m_defCategoryRegisterModel);
+    if (m_itemModel != nullptr)
+        delete m_itemModel;
+    m_itemModel = new QStandardItemModel(0, 7, ui->TableView);
+    ui->TableView->setModel(m_itemModel);
     int column = 0;
-    for(int row = 0; row != m_defCategoryRegRecordView.size(); ++row) {
-       this->addRowInTableDefCategoryRegister(m_defCategoryRegRecordView.at(row));
+    for(int row = 0; row != defCategoryRegRecordView.size(); ++row) {
+       this->addRowInTableView(defCategoryRegRecordView.at(row));
     }
     //ui->TableView->setColumnWidth(column, 30);
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Номер");
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Номер");
     ui->TableView->hideColumn(column);
     column++;
     ui->TableView->setColumnWidth(column, 80);
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Дата"); column++;
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Дата"); column++;
     ui->TableView->setColumnWidth(column, 140);
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Сотрудник"); column++;
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Категория"); column++;
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Сотрудник"); column++;
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Категория"); column++;
     ui->TableView->setColumnWidth(column, 70);
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Налог"); column++;
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Налог"); column++;
     ui->TableView->setColumnWidth(column, 70);
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Тип расчета"); column++;
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Тип расчета"); column++;
     ui->TableView->setColumnWidth(column, 70);
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Сумма"); column++;
-    m_defCategoryRegisterModel->setHeaderData(column, Qt::Horizontal, "Себестоимость"); column++;
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Сумма"); column++;
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Себестоимость"); column++;
 }
 
-void MainWindow::addRowInTableDefCategoryRegister(DefCategoryRegisterRecordView defCtgryRegRecordView)
+void MainWindow::setSalaryRegisterInTableView()
 {
-    m_defCategoryRegisterModel->setRowCount(m_defCategoryRegisterModel->rowCount() + 1);
-    int row = m_defCategoryRegisterModel->rowCount() - 1;
+    QString firstDate = ui->LblTabViewFromDate->text();
+    QString secondDate = ui->LblTabViewToDate->text();
+    QVector <SalaryRegisterRecordView> salaryRegRecordView =
+            sqlManager.selectSalaryRegRecordView(firstDate, secondDate);
+
+    ui->TableView->clearSpans();
+
+    if (m_itemModel != nullptr)
+        delete m_itemModel;
+    m_itemModel = new QStandardItemModel(0, 5, ui->TableView);
+    ui->TableView->setModel(m_itemModel);
     int column = 0;
-    QStandardItem *newItem0 = new QStandardItem(QString::number(defCtgryRegRecordView.id));
-    m_defCategoryRegisterModel->setItem(row, column, newItem0);
+    for(int row = 0; row != salaryRegRecordView.size(); ++row) {
+       this->addRowInTableView(salaryRegRecordView.at(row));
+    }
+    //ui->TableView->setColumnWidth(column, 30);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Номер");
+    ui->TableView->hideColumn(column);
     column++;
-    QStandardItem *newItem1 = new QStandardItem(defCtgryRegRecordView.date);
-    m_defCategoryRegisterModel->setItem(row, column, newItem1);
-    column++;
-    QStandardItem *newItem2 = new QStandardItem(defCtgryRegRecordView.staffer);
-    m_defCategoryRegisterModel->setItem(row, column, newItem2);
-    column++;
-    QStandardItem *newItem3 = new QStandardItem(defCtgryRegRecordView.category);
-    m_defCategoryRegisterModel->setItem(row, column, newItem3);
-    column++;
-    QStandardItem *newItem4 = new QStandardItem(defCtgryRegRecordView.tax);
-    m_defCategoryRegisterModel->setItem(row, column, newItem4);
-    column++;
-    QStandardItem *newItem5 = new QStandardItem(defCtgryRegRecordView.cash);
-    m_defCategoryRegisterModel->setItem(row, column, newItem5);
-    column++;
-    QStandardItem *newItem6 = new QStandardItem(QString::number(defCtgryRegRecordView.amount));
-    m_defCategoryRegisterModel->setItem(row, column, newItem6);
-    column++;
-    QStandardItem *newItem7 = new QStandardItem(QString::number(defCtgryRegRecordView.selfcoast));
-    m_defCategoryRegisterModel->setItem(row, column, newItem7);
-    column++;
+    ui->TableView->setColumnWidth(column, 80);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Дата"); column++;
+    ui->TableView->setColumnWidth(column, 150);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Сотрудник"); column++;
+    ui->TableView->setColumnWidth(column, 70);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Сумма"); column++;
+    ui->TableView->setColumnWidth(column, 70);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Ставка"); column++;
+    ui->TableView->setColumnWidth(column, 150);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Коэффициент ставки"); column++;
 }
 
 void MainWindow::setCostsRegisterInTableView()
 {
+    QString firstDate = ui->LblTabViewFromDate->text();
+    QString secondDate = ui->LblTabViewToDate->text();
+    QVector <CostsRegisterRecordView> costsRegRecordView = sqlManager.selectCostsRegRecordView(firstDate, secondDate);
 
+    ui->TableView->clearSpans();
+
+    if (m_itemModel != nullptr)
+        delete m_itemModel;
+    m_itemModel = new QStandardItemModel(0, 5, ui->TableView);
+    ui->TableView->setModel(m_itemModel);
+    int column = 0;
+    for(int row = 0; row != costsRegRecordView.size(); ++row) {
+       this->addRowInTableView(costsRegRecordView.at(row));
+    }
+    //ui->TableView->setColumnWidth(column, 30);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Номер");
+    ui->TableView->hideColumn(column);
+    column++;
+    ui->TableView->setColumnWidth(column, 80);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Дата"); column++;
+    ui->TableView->setColumnWidth(column, 70);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Тип расчета"); column++;
+    ui->TableView->setColumnWidth(column, 70);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Сумма"); column++;
+    ui->TableView->setColumnWidth(column, 300);
+    m_itemModel->setHeaderData(column, Qt::Horizontal, "Описание"); column++;
 }
 
-void MainWindow::addRowInTableCostsRegister(CostsRegisterRecordView costsRegRecordView)
+void MainWindow::addRowInTableView(DefCategoryRegisterRecordView defCtgryRegRecordView)
 {
+    m_itemModel->setRowCount(m_itemModel->rowCount() + 1);
+    int row = m_itemModel->rowCount() - 1;
+    int column = 0;
+    QStandardItem *newItem0 = new QStandardItem(QString::number(defCtgryRegRecordView.id));
+    m_itemModel->setItem(row, column, newItem0);
+    column++;
+    QStandardItem *newItem1 = new QStandardItem(defCtgryRegRecordView.date);
+    m_itemModel->setItem(row, column, newItem1);
+    column++;
+    QStandardItem *newItem2 = new QStandardItem(defCtgryRegRecordView.staffer);
+    m_itemModel->setItem(row, column, newItem2);
+    column++;
+    QStandardItem *newItem3 = new QStandardItem(defCtgryRegRecordView.category);
+    m_itemModel->setItem(row, column, newItem3);
+    column++;
+    QStandardItem *newItem4 = new QStandardItem(defCtgryRegRecordView.tax);
+    m_itemModel->setItem(row, column, newItem4);
+    column++;
+    QStandardItem *newItem5 = new QStandardItem(defCtgryRegRecordView.cash);
+    m_itemModel->setItem(row, column, newItem5);
+    column++;
+    QStandardItem *newItem6 = new QStandardItem(QString::number(defCtgryRegRecordView.amount));
+    m_itemModel->setItem(row, column, newItem6);
+    column++;
+    QStandardItem *newItem7 = new QStandardItem(QString::number(defCtgryRegRecordView.selfcoast));
+    m_itemModel->setItem(row, column, newItem7);
+    column++;
+}
 
+void MainWindow::addRowInTableView(SalaryRegisterRecordView salaryRegRecordView)
+{
+    m_itemModel->setRowCount(m_itemModel->rowCount() + 1);
+    int row = m_itemModel->rowCount() - 1;
+    int column = 0;
+    QStandardItem *newItem0 = new QStandardItem(QString::number(salaryRegRecordView.id));
+    m_itemModel->setItem(row, column, newItem0);
+    column++;
+    QStandardItem *newItem1 = new QStandardItem(salaryRegRecordView.date);
+    m_itemModel->setItem(row, column, newItem1);
+    column++;
+    QStandardItem *newItem2 = new QStandardItem(salaryRegRecordView.staffer);
+    m_itemModel->setItem(row, column, newItem2);
+    column++;
+    QStandardItem *newItem3 = new QStandardItem(QString::number(salaryRegRecordView.amount));
+    m_itemModel->setItem(row, column, newItem3);
+    column++;
+    QStandardItem *newItem4 = new QStandardItem(QString::number(salaryRegRecordView.basicWage));
+    m_itemModel->setItem(row, column, newItem4);
+    column++;
+    QStandardItem *newItem5 = new QStandardItem(QString::number(salaryRegRecordView.koefBasicWage));
+    m_itemModel->setItem(row, column, newItem5);
+    column++;
+}
+
+void MainWindow::addRowInTableView(CostsRegisterRecordView costsRegRecordView)
+{
+    m_itemModel->setRowCount(m_itemModel->rowCount() + 1);
+    int row = m_itemModel->rowCount() - 1;
+    int column = 0;
+    QStandardItem *newItem0 = new QStandardItem(QString::number(costsRegRecordView.id));
+    m_itemModel->setItem(row, column, newItem0);
+    column++;
+    QStandardItem *newItem1 = new QStandardItem(costsRegRecordView.date);
+    m_itemModel->setItem(row, column, newItem1);
+    column++;
+    QStandardItem *newItem2 = new QStandardItem(costsRegRecordView.cash);
+    m_itemModel->setItem(row, column, newItem2);
+    column++;
+    QStandardItem *newItem3 = new QStandardItem(QString::number(costsRegRecordView.amount));
+    m_itemModel->setItem(row, column, newItem3);
+    column++;
+    QStandardItem *newItem4 = new QStandardItem(costsRegRecordView.description);
+    m_itemModel->setItem(row, column, newItem4);
+    column++;
 }
 
 void MainWindow::removeRecordInTableView()
@@ -619,22 +739,39 @@ void MainWindow::removeRecordInTableView()
                                     1);
     if (!btnNo) {
         QModelIndexList selectedRows = ui->TableView->selectionModel()->selectedRows();
-        for (int ii = 0; ii < selectedRows.size(); ii++){
-            int requiredId = selectedRows[ii].data(0).toInt();
-            int selectedRow = selectedRows[ii].row();
-            QModelIndex index = ui->TableView->model()->index(selectedRow, 1);
-            QString date = ui->TableView->model()->data(index).toString();
-            index = ui->TableView->model()->index(selectedRow, 2);
-            QString staffer = ui->TableView->model()->data(index).toString();
-            StaffersTable stafferTable;
-            int stafferId = sqlManager.selectIdFromTable(stafferTable.table, stafferTable.id,
-                                                         stafferTable.name, staffer);
-            SalaryRegisterRecord salaryRegRec = sqlManager.selectSalaryRecord(date, stafferId);
-            if (sqlManager.deleteInDefCategoryRegisterTable(requiredId))
-                this->showStatusBar("Строка удалена");
-            sqlManager.updateRecordInSalaryRegisterTable(salaryRegRec);
+        if (m_registerType == RegisterType::Register_defCategory) {
+            for (int ii = 0; ii < selectedRows.size(); ii++){
+                int requiredId = selectedRows[ii].data(0).toInt();
+                int selectedRow = selectedRows[ii].row();
+                QModelIndex index = ui->TableView->model()->index(selectedRow, 1);
+                QString date = ui->TableView->model()->data(index).toString();
+                index = ui->TableView->model()->index(selectedRow, 2);
+                QString staffer = ui->TableView->model()->data(index).toString();
+                StaffersTable stafferTable;
+                int stafferId = sqlManager.selectIdFromTable(stafferTable.table, stafferTable.id,
+                                                             stafferTable.name, staffer);
+                SalaryRegisterRecord salaryRegRec = sqlManager.selectSalaryRecord(date, stafferId);
+                if (sqlManager.deleteInDefCategoryRegisterTable(requiredId)) {
+                    this->showStatusBar("Строка удалена");
+                    if (!sqlManager.updateRecordInSalaryRegisterTable(salaryRegRec)) {
+                        qDebug() <<"Record update in salary_register has not been made";
+                    }
+                    this->setDefCategoryRegisterInTableView();
+                }
+            }
         }
-        this->setDefCategoryRegisterInTableView();
+        else if (m_registerType == RegisterType::Register_Costs) {
+            for (int ii = 0; ii < selectedRows.size(); ii++){
+                int requiredId = selectedRows[ii].data(0).toInt();
+                if (sqlManager.deleteInCostsRegisterTable(requiredId)) {
+                    this->showStatusBar("Строка удалена");
+                    this->setCostsRegisterInTableView();
+                }
+                else {
+                    qDebug() <<"Record deleting in costs_register has not been made";
+                }
+            }
+        }
     }
 }
 
@@ -645,7 +782,3 @@ void MainWindow::closeEvent(QCloseEvent *event)
     QApplication::exit();
 }
 
-void MainWindow::testFunc()
-{
-
-}

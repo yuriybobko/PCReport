@@ -107,6 +107,9 @@
        <height>41</height>
       </rect>
      </property>
+     <property name="statusTip">
+      <string>Настройки</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -172,6 +175,9 @@
        <height>31</height>
       </rect>
      </property>
+     <property name="statusTip">
+      <string>Календарь</string>
+     </property>
      <property name="text">
       <string/>
      </property>
@@ -226,7 +232,7 @@
      <string notr="true">QTabBar::tab:selected {background-color: rgb(235, 235, 235)} QWidget {background-color: rgb(220, 220, 220)} QLineEdit, QTextEdit, QComboBox,QTableView, QStandardItem {background-color: white} </string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="TabDailyReport">
      <attribute name="title">
@@ -599,7 +605,17 @@
         </rect>
        </property>
        <property name="text">
-        <string>Удалить</string>
+        <string>Удалить запись</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="CmbBoxTableView">
+       <property name="geometry">
+        <rect>
+         <x>450</x>
+         <y>310</y>
+         <width>171</width>
+         <height>22</height>
+        </rect>
        </property>
       </widget>
      </widget>

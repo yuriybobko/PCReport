@@ -501,6 +501,59 @@ QVector<DefCategoryRegisterRecordView> SqlManager::selectDefCategoryRegRecordVie
     return defCtgryRegRecViewVector;
 }
 
+QVector<SalaryRegisterRecordView> SqlManager::selectSalaryRegRecordView(QString firstDate, QString secondDate)
+{
+    SalaryRegisterView salaryRegView;
+    QVector<SalaryRegisterRecordView> salaryRegRecViewVector;
+    QSqlQuery query;
+    QString queryString = "SELECT * FROM " + salaryRegView.table +
+            " WHERE " + salaryRegView.date + " BETWEEN :firstDate AND :secondDate;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                SalaryRegisterRecordView salaryRegRecView;
+                int kk = 0;
+                salaryRegRecView.id = query.value(kk).toInt(); kk++;
+                salaryRegRecView.date = query.value(kk).toString(); kk++;
+                salaryRegRecView.staffer = query.value(kk).toString(); kk++;
+                salaryRegRecView.amount = query.value(kk).toFloat(); kk++;
+                salaryRegRecView.basicWage = query.value(kk).toFloat(); kk++;
+                salaryRegRecView.koefBasicWage = query.value(kk).toFloat(); kk++;
+                salaryRegRecViewVector.append(salaryRegRecView);
+            }
+        }
+    }
+    return salaryRegRecViewVector;
+}
+
+QVector<CostsRegisterRecordView> SqlManager::selectCostsRegRecordView(QString firstDate, QString secondDate)
+{
+    CostsRegisterView costsRegView;
+    QVector<CostsRegisterRecordView> costsRegRecViewVector;
+    QSqlQuery query;
+    QString queryString = "SELECT * FROM " + costsRegView.table +
+            " WHERE " + costsRegView.date + " BETWEEN :firstDate AND :secondDate;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                CostsRegisterRecordView costsRegRecView;
+                int kk = 0;
+                costsRegRecView.id = query.value(kk).toInt(); kk++;
+                costsRegRecView.date = query.value(kk).toString(); kk++;
+                costsRegRecView.cash = query.value(kk).toString(); kk++;
+                costsRegRecView.amount = query.value(kk).toFloat(); kk++;
+                costsRegRecView.description = query.value(kk).toString(); kk++;
+                costsRegRecViewVector.append(costsRegRecView);
+            }
+        }
+    }
+    return costsRegRecViewVector;
+}
+
 SalaryRegisterRecord SqlManager::selectSalaryRecord(QString date, int stafferId)
 {
     SalaryRegisterRecord salaryRegRecord;;
@@ -563,6 +616,27 @@ bool SqlManager::deleteInDefCategoryRegisterTable(int requiredId)
     QSqlQuery query;
     QString queryString = "DELETE FROM " + defCtgryRegTable.table +
                         " WHERE " + defCtgryRegTable.id + " = :requiredId" +
+                        ";";
+
+    if (query.prepare(queryString)) {
+        query.bindValue(":requiredId", requiredId);
+        if (query.exec()) {
+            result = true;
+        }
+        else {
+            qDebug() << "Deleting from defcategory_register is enabled";
+        }
+    }
+    return result;
+}
+
+bool SqlManager::deleteInCostsRegisterTable(int requiredId)
+{
+    bool result = false;
+    CostsRegisterTable costsRegTable;
+    QSqlQuery query;
+    QString queryString = "DELETE FROM " + costsRegTable.table +
+                        " WHERE " + costsRegTable.id + " = :requiredId" +
                         ";";
 
     if (query.prepare(queryString)) {

@@ -72,23 +72,25 @@ private slots:
     void showProfitInEdit();
 
     void editTableView(); // Редактировать таблицу записей из реестров
+
     void setDefCategoryRegisterInTableView(); // Задать таблицу из реестра категорий
-    // Добавить строку в таблицу записей из реестра категорий
-    void addRowInTableDefCategoryRegister(DefCategoryRegisterRecordView defCtgryRegRecordView);
+    void setSalaryRegisterInTableView(); // Задать таблицу из реестра зарплат
     void setCostsRegisterInTableView(); // Задать таблицу из реестра расходов
+
+    // Добавить строку в таблицу записей из реестра категорий
+    void addRowInTableView(DefCategoryRegisterRecordView defCtgryRegRecordView);
+    // Добавить строку в таблицу записей из реестра зарплат
+    void addRowInTableView(SalaryRegisterRecordView salaryRegRecordView);
     // Добавить строку в таблицу записей из реестра расходов
-    void addRowInTableCostsRegister(CostsRegisterRecordView costsRegRecordView);
+    void addRowInTableView(CostsRegisterRecordView costsRegRecordView);
 
     // Удалить строку из таблицы записей
     void removeRecordInTableView();
 
     // Методы событий
-
     void closeEvent(QCloseEvent *event);
 
     // Тестовые функции
-
-    void testFunc();
 
 private:
     Ui::MainWindow *ui;
@@ -105,7 +107,12 @@ private:
     QVector <FormBtnCategory *> m_FormBtnCategory;
     QVector <FormCategory *> m_FormCategory; 
 
-    QVector <DefCategoryRegisterRecordView> m_defCategoryRegRecordView;
-    QStandardItemModel *m_defCategoryRegisterModel = nullptr;
+//    QVector <DefCategoryRegisterRecordView> m_defCategoryRegRecordView;
+//    QVector <CostsRegisterRecordView> m_salaryRegRecordView;
+//    QVector <CostsRegisterRecordView> m_costsRegRecordView;
+
+    QStandardItemModel *m_itemModel = nullptr;
+
+    RegisterType m_registerType;
 };
 #endif // MAINWINDOW_H
