@@ -24,9 +24,6 @@ CalendarWindow::~CalendarWindow()
 QString CalendarWindow::getDate(bool *btnOk, QWidget *parent)
 {
     CalendarWindow clndrWndw(parent);
-    //clndrWndw.setParent(parent);
-    //clndrWndw.setWindowModality(Qt::ApplicationModal);
-
     if (clndrWndw.exec() == QDialog::Accepted) {
         QString selectedDate = clndrWndw.selectDate();
         *btnOk = true;

@@ -52,29 +52,6 @@
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
      </property>
     </widget>
-    <widget class="QLabel" name="LblReportNum">
-     <property name="geometry">
-      <rect>
-       <x>240</x>
-       <y>10</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Номер отчета:</string>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="EditReportNum">
-     <property name="geometry">
-      <rect>
-       <x>330</x>
-       <y>10</y>
-       <width>113</width>
-       <height>21</height>
-      </rect>
-     </property>
-    </widget>
     <widget class="QLabel" name="LblStaffer">
      <property name="geometry">
       <rect>
@@ -143,35 +120,12 @@
       </property>
      </widget>
     </widget>
-    <widget class="QLabel" name="LblSelectedDateHeader">
+    <widget class="QPushButton" name="BtnShowReportWindow">
      <property name="geometry">
       <rect>
-       <x>90</x>
-       <y>40</y>
-       <width>91</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Monotype Corsiva</family>
-       <pointsize>10</pointsize>
-       <italic>true</italic>
-      </font>
-     </property>
-     <property name="text">
-      <string>Выбранная дата:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="BtnCalendar">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
+       <x>220</x>
        <y>10</y>
-       <width>31</width>
+       <width>111</width>
        <height>31</height>
       </rect>
      </property>
@@ -179,30 +133,7 @@
       <string>Календарь</string>
      </property>
      <property name="text">
-      <string/>
-     </property>
-    </widget>
-    <widget class="QLabel" name="LblSelectedDate">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>60</y>
-       <width>91</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Monotype Corsiva</family>
-       <pointsize>10</pointsize>
-       <italic>true</italic>
-      </font>
-     </property>
-     <property name="text">
-      <string>Выбранная дата:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      <string>Печать отчета</string>
      </property>
     </widget>
    </widget>
@@ -241,11 +172,17 @@
      <widget class="QPushButton" name="BtnFillFrameTotalSum">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>220</y>
+        <x>20</x>
+        <y>270</y>
         <width>80</width>
         <height>21</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Вычислить заработную плату</string>
+      </property>
+      <property name="statusTip">
+       <string>Вычислить заработную плату</string>
       </property>
       <property name="text">
        <string>Вычислить</string>
@@ -398,11 +335,17 @@
      <widget class="QPushButton" name="BtnWriteRegisterToDataBase">
       <property name="geometry">
        <rect>
-        <x>10</x>
-        <y>250</y>
+        <x>110</x>
+        <y>270</y>
         <width>80</width>
         <height>21</height>
        </rect>
+      </property>
+      <property name="toolTip">
+       <string>Сделать запись в базе данных на текущую дату</string>
+      </property>
+      <property name="statusTip">
+       <string>Сделать запись в базе данных на текущую дату</string>
       </property>
       <property name="text">
        <string>Записать</string>
@@ -432,6 +375,68 @@
       </property>
       <property name="text">
        <string>Общая сумма</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="LblSelectedDateHeader">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>220</y>
+        <width>91</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Monotype Corsiva</family>
+        <pointsize>10</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string>Выбранная дата:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="LblSelectedDate">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>240</y>
+        <width>91</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Monotype Corsiva</family>
+        <pointsize>10</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string>Выбранная дата:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="BtnCalendar">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>220</y>
+        <width>31</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="statusTip">
+       <string>Календарь</string>
+      </property>
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </widget>

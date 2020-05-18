@@ -1,5 +1,6 @@
 QT       += core gui
 QT       += sql
+QT       += printsupport
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -23,6 +24,7 @@ SOURCES += \
     formcategory.cpp \
     main.cpp \
     mainwindow.cpp \
+    reportwindow.cpp \
     settingwindow.cpp \
     sqlmanager.cpp
 
@@ -32,6 +34,7 @@ HEADERS += \
     formbtncategory.h \
     formcategory.h \
     mainwindow.h \
+    reportwindow.h \
     settingwindow.h \
     sqlmanager.h \
     structures.h
@@ -42,6 +45,7 @@ FORMS += \
     formbtncategory.ui \
     formcategory.ui \
     mainwindow.ui \
+    reportwindow.ui \
     settingwindow.ui
 
 # Default rules for deployment.

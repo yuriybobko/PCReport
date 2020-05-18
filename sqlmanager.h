@@ -23,6 +23,7 @@ public:
     void closeDataBase();
 
     QSqlTableModel *getDefCategoryTable();
+    bool setDefCategoryModel();
 
     void testFunc();
 
@@ -45,7 +46,14 @@ public slots:
                      SalaryRegisterRecord oldSalaryRegRecord);
 
     // Выбрать сумму за определенный период из реестра категорий по заданному id категории и налога
-    float selectTotalSumInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId);
+//    float selectTotalSumInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId);
+    float selectTotalSumInPeriodByCtgryTax(QString firstDate, QString secondDate,
+                                           int categoryId, int taxId);
+    // Выбрать сумму за определенный период из реестра категорий по заданному id категории, налога и типа расчета
+    float selectTotalSumInPeriodByCtgryTaxCash(QString firstDate, QString secondDate,
+                                               int categoryId, int taxId, int cashId);
+    // Выбрать сумму за определенный период из реестра категорий по заданному id налога и  типа расчета
+    float selectTotalSumInPeriodByTaxCash(QString firstDate, QString secondDate, int taxId, int cashId);
 
     // Выбрать себестоимость за определенный период из реестра категорий по заданному id категории и налога
     float selectTotalSelfcoastInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId);
@@ -60,7 +68,7 @@ public slots:
     int selectMaxCategoryIdInPeriod(QString firstDate, QString secondDate);
 
     // Выбрать заданное поле из таблицы
-    QVector <QString> selectTitlesFromTable(QString table, QString title);
+    QVector <QString> selectTitlesFromTable(QString table, QString title);//// TODO: заменить на QStringList!
 
     // Выбрать заданную пользователем категорию через представление-таблицу заданных категорий
     QVector <DefinedCategory> selectDefCategory();
@@ -74,8 +82,14 @@ public slots:
     // Выбрать запись из реестра категорий по заданной дате и id сотрудника
     QVector <DefCategoryRegisterRecord> selectDefCategoryRegRecord(QString date, int stafferId);
 
+    // Выбрать запись из реестра категорий в заданный период времени
+    QVector <DefCategoryRegisterRecord> selectDefCategoryRegRecord(QString firstDate, QString secondDate);
+
     // Выбрать записи из представления-таблицы реестра категорий в заданный период времени
     QVector <DefCategoryRegisterRecordView> selectDefCategoryRegRecordView(QString firstDate, QString secondDate);
+
+    // Выбрать имена сотрудников из представления-таблицы реестра категорий в заданный период времени
+    QStringList selectStafferFromDefCategoryRegRecord(QString firstDate, QString secondDate);
 
     // Выбрать записи из представления-таблицы реестра зарплат в заданный период времени
     QVector<SalaryRegisterRecordView> selectSalaryRegRecordView(QString firstDate, QString secondDate);

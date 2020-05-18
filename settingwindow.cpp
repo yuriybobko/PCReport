@@ -2,18 +2,18 @@
 #include "ui_settingwindow.h"
 #include "mainwindow.h"
 
-StaffersTable staffersTable;
-CategoriesTable categoriesTable;
-TaxesTable taxesTable;
-CashTable cashTable;
-DefCategoriesView defCategoriesView;
-DefCategoriesTable defCategoriesTable;
-DefCategoryRegisterView defCategoryRegisterView;
-DefCategoryRegisterTable defCategoryRegisterTable;
-CostsRegisterTable costsRegisterTable;
-CostsRegisterView costsRegisterView;
-SalaryRegisterTable salaryRegisterTable;
-SalaryRegisterView salaryRegisterView;
+//StaffersTable staffersTable;
+//CategoriesTable categoriesTable;
+//TaxesTable taxesTable;
+//CashTable cashTable;
+//DefCategoriesView defCategoriesView;
+//DefCategoriesTable defCategoriesTable;
+//DefCategoryRegisterView defCategoryRegisterView;
+//DefCategoryRegisterTable defCategoryRegisterTable;
+//CostsRegisterTable costsRegisterTable;
+//CostsRegisterView costsRegisterView;
+//SalaryRegisterTable salaryRegisterTable;
+//SalaryRegisterView salaryRegisterView;
 
 SettingWindow::SettingWindow(QWidget *parent) :
     QDialog(parent),
@@ -158,11 +158,15 @@ void SettingWindow::openDataBase(const QString dbFile)
 
 void SettingWindow::connectToDataBase(QString dbFile)
 {
+    StaffersTable staffersTable;
+    CategoriesTable categoriesTable;
+    TaxesTable taxesTable;
     sqlManager.connectToDataBase(dbFile);
     m_staffer = sqlManager.selectTitlesFromTable(staffersTable.table, staffersTable.name);
     m_category = sqlManager.selectTitlesFromTable(categoriesTable.table, categoriesTable.title);
     m_tax = sqlManager.selectTitlesFromTable(taxesTable.table, taxesTable.title);
     m_defCategory = sqlManager.selectDefCategory();
+    sqlManager.setDefCategoryModel();
 }
 
 void SettingWindow::editWidgets()
@@ -344,6 +348,7 @@ QVector<QString> SettingWindow::getCategory()
 void SettingWindow::setCategory()
 {
     m_category.clear();
+    CategoriesTable categoriesTable;
     for (int ii = 0; ii < ui->CmbBoxCategory->count(); ii++) {
         m_category.append(ui->CmbBoxCategory->itemText(ii));
         sqlManager.insertIntoOneTitleTable(categoriesTable.table, categoriesTable.title, ui->CmbBoxCategory->itemText(ii));
@@ -390,7 +395,7 @@ QVector<QString> SettingWindow::getStaffer()
 
 void SettingWindow::setStaffer()
 {
-
+    StaffersTable staffersTable;
     m_staffer.clear();
     for (int ii = 0; ii < ui->CmbBoxStaffer->count(); ii++) {
         m_staffer.append(ui->CmbBoxStaffer->itemText(ii));
@@ -438,6 +443,7 @@ QVector<QString> SettingWindow::getTax()
 
 void SettingWindow::setTax()
 {
+    TaxesTable taxesTable;
     m_tax.clear();
     for (int ii = 0; ii < ui->CmbBoxTax->count(); ii++) {
         m_tax.append(ui->CmbBoxTax->itemText(ii));
@@ -489,6 +495,8 @@ void SettingWindow::setDefCategory()
 {
     m_defCategory.clear();
     DefinedCategory defCtgry;
+    CategoriesTable categoriesTable;
+    TaxesTable taxesTable;
     for (int row = 0; row < m_defCategoryModel->rowCount(); row++) {
         int column = 0;
         defCtgry.categoryTitle = m_defCategoryModel->item(row, column)->text();

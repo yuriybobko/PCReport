@@ -15,6 +15,7 @@
 #include "formcategory.h"
 #include "settingwindow.h"
 #include "calendarwindow.h"
+#include "reportwindow.h"
 
 
 extern SqlManager sqlManager;
@@ -53,7 +54,6 @@ private slots:
     void showStatusBar(QString statusBarText); // Вывод в statusBar
 
     void showSettingWindow();
-    void showCalendarWindow();
     QString getDateFromCalendar();
 
     void fillFrameTotalSum(); // Заполнить поля полной суммы и зарплаты
@@ -96,7 +96,7 @@ private:
     Ui::MainWindow *ui;
 
     SettingWindow *m_settingWndw;
-    CalendarWindow *m_calendarWndw;
+    ReportWindow *m_reportWndw;
 
     int m_dHeight = 50;
     int m_dWidth = 50;

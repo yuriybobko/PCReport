@@ -216,7 +216,8 @@ float SqlManager::calcSalary(QVector<DefCategoryRegisterRecord> defCtgryRegRecor
     return salary;
 }
 
-float SqlManager::selectTotalSumInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId)
+float SqlManager::selectTotalSumInPeriodByCtgryTax(QString firstDate, QString secondDate,
+                                         int categoryId, int taxId)
 {
     DefCategoryRegisterTable defCtgryRegTable;
     float totalSum = 0;
@@ -240,7 +241,58 @@ float SqlManager::selectTotalSumInPeriod(QString firstDate, QString secondDate, 
     return totalSum;
 }
 
-float SqlManager::selectTotalSelfcoastInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId)
+float SqlManager::selectTotalSumInPeriodByCtgryTaxCash(QString firstDate, QString secondDate,
+                                                       int categoryId, int taxId, int cashId)
+{
+    DefCategoryRegisterTable defCtgryRegTable;
+    float totalSum = 0;
+    QSqlQuery query;
+    QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
+            " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
+            "AND " + defCtgryRegTable.category + " = :categoryId "
+            "AND " + defCtgryRegTable.tax + " = :taxId "
+            "AND " + defCtgryRegTable.cash + " = :cashId;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        query.bindValue(":categoryId", categoryId);
+        query.bindValue(":taxId", taxId);
+        query.bindValue(":cashId", cashId);
+        if (query.exec()) {
+            while (query.next()) {
+                totalSum = query.value(0).toFloat();
+            }
+        }
+    }
+    return totalSum;
+}
+
+float SqlManager::selectTotalSumInPeriodByTaxCash(QString firstDate, QString secondDate,
+                                                  int taxId, int cashId)
+{
+    DefCategoryRegisterTable defCtgryRegTable;
+    float totalSum = 0;
+    QSqlQuery query;
+    QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
+            " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
+            "AND " + defCtgryRegTable.tax + " = :taxId "
+            "AND " + defCtgryRegTable.cash + " = :cashId;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        query.bindValue(":taxId", taxId);
+        query.bindValue(":cashId", cashId);
+        if (query.exec()) {
+            while (query.next()) {
+                totalSum = query.value(0).toFloat();
+            }
+        }
+    }
+    return totalSum;
+}
+
+float SqlManager::selectTotalSelfcoastInPeriod(QString firstDate, QString secondDate,
+                                               int categoryId, int taxId)
 {
     DefCategoryRegisterTable defCtgryRegTable;
     float totalSelfcoast = 0;
@@ -361,12 +413,12 @@ QVector<DefinedCategory> SqlManager::selectDefCategory()
             ii++;
         }
 
-        m_defCategoryTable->setTable(defCtgrsView.table);
-        m_defCategoryTable->setEditStrategy(QSqlTableModel::OnManualSubmit);
-        if (m_defCategoryTable->select())
-            qDebug() << "model is selected";
-        else
-            qDebug() << "model is not selected";
+//        m_defCategoryTable->setTable(defCtgrsView.table);
+//        m_defCategoryTable->setEditStrategy(QSqlTableModel::OnManualSubmit);
+//        if (m_defCategoryTable->select())
+//            qDebug() << "model is selected";
+//        else
+//            qDebug() << "model is not selected";
 
     }
     else {
@@ -471,6 +523,40 @@ QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QStrin
 
 }
 
+QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QString firstDate, QString secondDate)
+{
+    QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector;
+    DefCategoryRegisterTable defCtgryRegTable;
+    QSqlQuery query;
+    QString queryString = "SELECT * FROM " + defCtgryRegTable.table +
+                        " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate"
+                        ";";
+
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                DefCategoryRegisterRecord defCtgryRegRecord;
+                int kk = 0;
+                defCtgryRegRecord.id = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.date = query.value(kk).toString(); kk++;
+                defCtgryRegRecord.stafferId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.categoryId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.taxId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.cashId = query.value(kk).toInt(); kk++;
+                defCtgryRegRecord.amount = query.value(kk).toFloat(); kk++;
+                defCtgryRegRecord.selfcoast = query.value(kk).toInt(); kk++;
+                defCtgryRegRecordVector.append(defCtgryRegRecord);
+            }
+        }
+    }
+    else {
+        qDebug() << "Selecting error in defcategory_register";
+    }
+    return defCtgryRegRecordVector;
+}
+
 QVector<DefCategoryRegisterRecordView> SqlManager::selectDefCategoryRegRecordView(QString firstDate,
                                                                                   QString secondDate)
 {
@@ -499,6 +585,25 @@ QVector<DefCategoryRegisterRecordView> SqlManager::selectDefCategoryRegRecordVie
         }
     }
     return defCtgryRegRecViewVector;
+}
+
+QStringList SqlManager::selectStafferFromDefCategoryRegRecord(QString firstDate, QString secondDate)
+{
+    DefCategoryRegisterView defCtgryRegView;
+    QStringList stafferNames;
+    QSqlQuery query;
+    QString queryString = "SELECT DISTINCT " + defCtgryRegView.staffer + " FROM " + defCtgryRegView.table +
+            " WHERE " + defCtgryRegView.date + " BETWEEN :firstDate AND :secondDate;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        if (query.exec()) {
+            while (query.next()) {
+                stafferNames.append(query.value(defCtgryRegView.staffer).toString());
+            }
+        }
+    }
+    return stafferNames;
 }
 
 QVector<SalaryRegisterRecordView> SqlManager::selectSalaryRegRecordView(QString firstDate, QString secondDate)
@@ -717,9 +822,29 @@ QSqlTableModel *SqlManager::getDefCategoryTable()
     return m_defCategoryTable;
 }
 
+bool SqlManager::setDefCategoryModel()
+{
+    bool result = false;
+    DefCategoriesView defCtgrsView;
+    m_defCategoryTable->setTable(defCtgrsView.table);
+    m_defCategoryTable->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    if (m_defCategoryTable->select()) {
+        qDebug() << "model is selected";
+        result = true;
+    }
+    else {
+        qDebug() << "model is not selected";
+    }
+    return result;
+}
+
 bool SqlManager::createTables()
 {
     bool result = true;
+    StaffersTable staffersTable;
+    CategoriesTable categoriesTable;
+    TaxesTable taxesTable;
+    CashTable cashTable;
     if (!this->createOneTitleTable(staffersTable.table, staffersTable.id, staffersTable.name))
             result = false;
     if (!this->createOneTitleTable(categoriesTable.table, categoriesTable.id, categoriesTable.title))

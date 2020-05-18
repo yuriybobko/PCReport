@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     this->setWindowTitle("PhC-Report");
 
     m_settingWndw = new SettingWindow(this);
-    m_calendarWndw = new CalendarWindow(this);
+    m_reportWndw = new ReportWindow(this);
 
     connect(m_settingWndw, SIGNAL(signalToEditStaffer(QVector <QString>)),
             this, SLOT(editStaffer(QVector <QString>)));
@@ -69,6 +69,11 @@ MainWindow::MainWindow(QWidget *parent)
     // Удалить запись в таблице записей из реестров категорий
     connect(ui->BtnDeleteRecord, SIGNAL(clicked()), this, SLOT(removeRecordInTableView()));
 
+    // Показать окно создания отчетов
+    connect(ui->BtnShowReportWindow, &QPushButton::clicked, [this]() {
+        this->m_reportWndw->show();
+    });
+
     this->setChildWidgets();
 }
 
@@ -91,8 +96,8 @@ MainWindow::~MainWindow()
 
     if (m_settingWndw)
         delete m_settingWndw;
-    if (m_calendarWndw)
-        delete m_calendarWndw;
+    if (m_reportWndw)
+        delete m_reportWndw;
     delete ui;
 }
 
@@ -293,15 +298,6 @@ void MainWindow::showSettingWindow()
     m_settingWndw->show();
 }
 
-void MainWindow::showCalendarWindow()
-{
-    bool btnOk = false;
-    QString selectedDateString = CalendarWindow::getDate(&btnOk, this);
-    if (btnOk) {
-        ui->LblSelectedDate->setText(selectedDateString);
-    }
-}
-
 QString MainWindow::getDateFromCalendar()
 {
     bool btnOk = false;
@@ -402,6 +398,10 @@ void MainWindow::writeDefCategoryRecordToDataBase()
     bool isAnyRecordExist = false;
     bool isRecordExist = false;
     this->showStatusBar("Идет запись в реестр категорий");
+    StaffersTable staffersTable;
+    CategoriesTable categoriesTable;
+    TaxesTable taxesTable;
+    CashTable cashTable;
     DefCategoryRegisterRecord defCtgryRegRecord;
     defCtgryRegRecord.date = ui->LblSelectedDate->text();
     QString stafferName = ui->CmbBoxStaffer->currentText();
@@ -467,6 +467,7 @@ void MainWindow::writeDefCategoryRecordToDataBase()
 
 void MainWindow::writeSalaryRecordToDataBase()
 {
+    StaffersTable staffersTable;
     SalaryRegisterRecord salaryRegRecord;
     salaryRegRecord.date = ui->LblSelectedDate->text();
     QString stafferName = ui->CmbBoxStaffer->currentText();
@@ -492,6 +493,7 @@ void MainWindow::writeCostsRecordToDataBase()
     if (isAnyRecordExist) {
         this->showStatusBar("Идет запись в реестр расходов");
         CostsRegisterRecord costsRegRecord;
+        CashTable cashTable;
         costsRegRecord.date = ui->LblSelectedDate->text();
         QString cashString = ui->CmbBoxCash->currentText();
         costsRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
@@ -518,7 +520,7 @@ void MainWindow::showProfitInEdit()
         float totalSum = 0;
         int categoryId = defCategoryRecord.at(ii).categoryId;
         int taxId = defCategoryRecord.at(ii).taxId;
-        totalSum = sqlManager.selectTotalSumInPeriod(firstDate, secondDate, categoryId, taxId);
+        totalSum = sqlManager.selectTotalSumInPeriodByCtgryTax(firstDate, secondDate, categoryId, taxId);
         float totalSelfcoast = 0;
         totalSelfcoast = sqlManager.selectTotalSelfcoastInPeriod(firstDate, secondDate, categoryId, taxId);
         netSum += (totalSum - totalSelfcoast)*defCategoryRecord.at(ii).koefProfit;

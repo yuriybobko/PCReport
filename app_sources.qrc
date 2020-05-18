@@ -3,5 +3,6 @@
         <file>app_imgs/SettingsIcon.JPG</file>
         <file>app_imgs/Logo.jpg</file>
         <file>app_imgs/CalendarIcon.JPG</file>
+        <file>app_imgs/Logo_small.jpg</file>
     </qresource>
 </RCC>
