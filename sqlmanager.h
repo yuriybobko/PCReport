@@ -46,7 +46,6 @@ public slots:
                      SalaryRegisterRecord oldSalaryRegRecord);
 
     // Выбрать сумму за определенный период из реестра категорий по заданному id категории и налога
-//    float selectTotalSumInPeriod(QString firstDate, QString secondDate, int categoryId, int taxId);
     float selectTotalSumInPeriodByCtgryTax(QString firstDate, QString secondDate,
                                            int categoryId, int taxId);
     // Выбрать сумму за определенный период из реестра категорий по заданному id категории, налога и типа расчета
@@ -111,6 +110,8 @@ public slots:
 
     // Проверка существования записи с текущей датой и сотрудником
     bool isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord);
+    // Проверка существования записи в таблице сотрудников, категорий и налогов
+    int isDefCategoryRecordExist(int categoryId, int taxId);
 
 
 private:

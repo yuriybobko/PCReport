@@ -21,15 +21,47 @@ int main(int argc, char *argv[])
         sharedMemmory.create(1);
     }
 
+    bool btnOkCmbBox = false;
+    bool isAdmin = false;
+    QStringList userType;
+    userType.append("Пользователь");
+    userType.append("Администратор");
+    QString strUserType = QInputDialog::getItem(0,
+                                           "Тип работы",
+                                           "Пользователь:",
+                                           userType,
+                                           0,
+                                           0,
+                                           &btnOkCmbBox,
+                                           Qt::WindowTitleHint);
+    if (btnOkCmbBox) {
+        if (strUserType == "Администратор") {
+            bool btnOkAdminPass = false;
+            QString strPassword = QInputDialog::getText(0,
+                                                       "Введите пароль",
+                                                       "Пароль:",
+                                                       QLineEdit::Normal,
+                                                       "",
+                                                       &btnOkAdminPass,
+                                                       Qt::WindowTitleHint);
+            if (btnOkAdminPass) {
+                if (strPassword == "12345")
+                    isAdmin = true;
+            }
+        }
+        else {
+            isAdmin = false;
+        }
+    }
+    else {
+        return 1;
+    }
+
     MainWindow w;
+    w.setAdminStatus(isAdmin);
     w.show();
 
     semaphore.release();
 
     return a.exec();
 }
-
-
-// TODO: удаление категорий с учетом существования записи в базе данных
-// TODO: возможность работы от имени администратора и пользователя
-// TODO: первый запуск программы проверить, путь создания базы данных

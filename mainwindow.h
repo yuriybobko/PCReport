@@ -11,12 +11,16 @@
 #include <QDebug>
 #include <QDate>
 #include <QTime>
+#include <QStyleFactory>
 #include "formbtncategory.h"
 #include "formcategory.h"
 #include "settingwindow.h"
 #include "calendarwindow.h"
 #include "reportwindow.h"
 
+#define CMBBOX_ITEM_CATEGORY "Записи категорий"
+#define CMBBOX_ITEM_COSTS "Записи расходов"
+#define CMBBOX_ITEM_SALARY "Записи заработной платы"
 
 extern SqlManager sqlManager;
 
@@ -32,8 +36,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void setAdminStatus(bool isAdmin);
+
 private slots:
     void setChildWidgets();
+
+    void setAdminMode();
 
     void addFormBtnCategory(QString strCategory);
     void addFormBtnCategory(DefinedCategory defCategory); // New!
@@ -114,5 +122,7 @@ private:
     QStandardItemModel *m_itemModel = nullptr;
 
     RegisterType m_registerType;
+
+    bool m_isAdmin;
 };
 #endif // MAINWINDOW_H

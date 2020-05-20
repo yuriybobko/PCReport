@@ -8,7 +8,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    QApplication::setStyle("Fusion");
     this->setWindowTitle("PhC-Report");
+    this->setFixedSize(this->width(), this->height());
 
     m_settingWndw = new SettingWindow(this);
     m_reportWndw = new ReportWindow(this);
@@ -101,6 +103,12 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::setAdminStatus(bool isAdmin)
+{
+    m_isAdmin = isAdmin;
+    this->setAdminMode();
+}
+
 void MainWindow::setChildWidgets()
 {
     QString imgLogoFile = PICT_LOGO;
@@ -175,9 +183,9 @@ void MainWindow::setChildWidgets()
 
     ui->TableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    ui->CmbBoxTableView->addItem("Записи категорий");
-    ui->CmbBoxTableView->addItem("Записи заработной платы");
-    ui->CmbBoxTableView->addItem("Записи расходов");
+    ui->CmbBoxTableView->addItem(CMBBOX_ITEM_CATEGORY);
+//    ui->CmbBoxTableView->addItem("Записи заработной платы");
+    ui->CmbBoxTableView->addItem(CMBBOX_ITEM_COSTS);
 
     QString imgCalculatorIconPath = PICT_CALCULATOR;
     QPixmap imgCalculatorIcon(imgCalculatorIconPath);
@@ -192,6 +200,18 @@ void MainWindow::setChildWidgets()
     ui->BtnShowReportWindow->setIconSize(QSize(ui->BtnSettings->size().width() - 5,
                                                ui->BtnSettings->size().height() - 5));
     ui->BtnShowReportWindow->setIcon(imgReportIcon);
+}
+
+void MainWindow::setAdminMode()
+{
+    if (m_isAdmin) {
+        ui->CmbBoxTableView->addItem(CMBBOX_ITEM_SALARY);
+        this->setWindowTitle(this->windowTitle() + " (режим администратора)");
+    }
+    else {
+        ui->TabWidgetMain->setTabEnabled(3, false);
+        this->setWindowTitle(this->windowTitle() + " (режим пользователя)");
+    }
 }
 
 void MainWindow::addFormBtnCategory(QString strCategory)
@@ -224,9 +244,6 @@ void MainWindow::addFormBtnCategory(DefinedCategory defCategory)
                                                         m_FormBtnCategory.at(m_FormBtnCategory.size() - 1)->height()
                                                         + m_dHeight));
 
-//        FormCategory *formCtgry = new FormCategory(m_FormCategory.size(),
-//                                                   defCategory,
-//                                                   this);
         FormCategory *formCtgry = new FormCategory(m_FormCategory.size(),
                                                    defCategory,
                                                    ui->TabDailyReport);
@@ -551,21 +568,36 @@ void MainWindow::showProfitInEdit()
 
 void MainWindow::editTableView()
 {
-    if (ui->CmbBoxTableView->currentIndex() == 0) {
+    if (ui->CmbBoxTableView->currentText() == CMBBOX_ITEM_CATEGORY) {
         this->setDefCategoryRegisterInTableView();
         m_registerType = RegisterType::Register_defCategory;
         ui->BtnDeleteRecord->setEnabled(true);
     }
-    if (ui->CmbBoxTableView->currentIndex() == 1) {
+    if (ui->CmbBoxTableView->currentText() == CMBBOX_ITEM_SALARY) {
         this->setSalaryRegisterInTableView();
         m_registerType = RegisterType::Register_Salary;
         ui->BtnDeleteRecord->setEnabled(false);
     }
-    if (ui->CmbBoxTableView->currentIndex() == 2) {
+    if (ui->CmbBoxTableView->currentText() == CMBBOX_ITEM_COSTS) {
         this->setCostsRegisterInTableView();
         m_registerType = RegisterType::Register_Costs;
         ui->BtnDeleteRecord->setEnabled(true);
     }
+//    if (ui->CmbBoxTableView->currentIndex() == 0) {
+//        this->setDefCategoryRegisterInTableView();
+//        m_registerType = RegisterType::Register_defCategory;
+//        ui->BtnDeleteRecord->setEnabled(true);
+//    }
+//    if (ui->CmbBoxTableView->currentIndex() == 1) {
+//        this->setSalaryRegisterInTableView();
+//        m_registerType = RegisterType::Register_Salary;
+//        ui->BtnDeleteRecord->setEnabled(false);
+//    }
+//    if (ui->CmbBoxTableView->currentIndex() == 2) {
+//        this->setCostsRegisterInTableView();
+//        m_registerType = RegisterType::Register_Costs;
+//        ui->BtnDeleteRecord->setEnabled(true);
+//    }
 }
 
 void MainWindow::setDefCategoryRegisterInTableView()

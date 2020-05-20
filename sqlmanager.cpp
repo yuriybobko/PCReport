@@ -694,9 +694,6 @@ int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableT
 {
     int id = -1;
     QSqlQuery query;
-//    QString queryStrigng = "SELECT " + tableId + " FROM " + table +
-//            " WHERE " + tableTitle + " = '" + requiredTitle + "'";
-
     QString queryStrigng = "SELECT " + tableId + " FROM " + table +
             " WHERE " + tableTitle + " = :requiredTitle;";
 
@@ -765,7 +762,6 @@ bool SqlManager::isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord)
             " FROM " + salaryRegTable.table +
             " WHERE " + salaryRegTable.date + " = :requiredDate "
             "AND " + salaryRegTable.staffer + " = :requiredStafferId;";
-    qDebug() << queryStrigng;
     if (query.prepare(queryStrigng)) {
         query.bindValue(":requiredDate", salaryRegRecord.date);
         query.bindValue(":requiredStafferId", salaryRegRecord.stafferId);
@@ -777,6 +773,30 @@ bool SqlManager::isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord)
     }
     else {
         //emit signalToStatusBar("Не удалось прочитать");
+        qDebug() << "Не удалось выполнить запрос выборе существующей записи в реестре зарплат";
+    }
+    return isRecordExist;
+}
+
+int SqlManager::isDefCategoryRecordExist(int categoryId, int taxId)
+{
+    DefCategoriesTable defCategoriesTable;
+    bool isRecordExist = false;
+    QSqlQuery query;
+    QString queryStrigng = "SELECT " + defCategoriesTable.id +
+            " FROM " + defCategoriesTable.table +
+            " WHERE " + defCategoriesTable.title + " = :categoryId "
+            "AND " + defCategoriesTable.tax + " = :taxId;";
+    if (query.prepare(queryStrigng)) {
+        query.bindValue(":categoryId", categoryId);
+        query.bindValue(":taxId", taxId);
+        if (query.exec()) {
+            while (query.next()) {
+                isRecordExist = true;
+            }
+        }
+    }
+    else {
         qDebug() << "Не удалось выполнить запрос выборе существующей записи в реестре зарплат";
     }
     return isRecordExist;

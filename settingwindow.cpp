@@ -2,24 +2,12 @@
 #include "ui_settingwindow.h"
 #include "mainwindow.h"
 
-//StaffersTable staffersTable;
-//CategoriesTable categoriesTable;
-//TaxesTable taxesTable;
-//CashTable cashTable;
-//DefCategoriesView defCategoriesView;
-//DefCategoriesTable defCategoriesTable;
-//DefCategoryRegisterView defCategoryRegisterView;
-//DefCategoryRegisterTable defCategoryRegisterTable;
-//CostsRegisterTable costsRegisterTable;
-//CostsRegisterView costsRegisterView;
-//SalaryRegisterTable salaryRegisterTable;
-//SalaryRegisterView salaryRegisterView;
-
 SettingWindow::SettingWindow(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingWindow)
 {
     ui->setupUi(this);
+    this->setFixedSize(this->width(), this->height());
 
     m_settingFilePath = QApplication::applicationDirPath() + SETTING_FILE;
 
@@ -65,7 +53,7 @@ SettingWindow::SettingWindow(QWidget *parent) :
 
     this->openDataBase(dataBaseFile);
 
-    SetFileAttributesW(m_settingFilePath.toStdWString().c_str(), FILE_ATTRIBUTE_HIDDEN);
+//    SetFileAttributesW(m_settingFilePath.toStdWString().c_str(), FILE_ATTRIBUTE_HIDDEN);
 
 
     connect(ui->BtnCancel, SIGNAL(clicked()), this, SLOT(cancelSettings()));
@@ -92,8 +80,8 @@ SettingWindow::SettingWindow(QWidget *parent) :
     connect(ui->BtnRemoveStaffer, SIGNAL(clicked()), this, SLOT(removeStaffer()));
     connect(ui->BtnRemoveCategory, SIGNAL(clicked()), this, SLOT(removeCategory()));
     connect(ui->BtnRemoveTax, SIGNAL(clicked()), this, SLOT(removeTax()));
-
     connect(ui->BtnAddDefCategory, SIGNAL(clicked()), this, SLOT(addDefCategory()));
+    connect(ui->BtnRemoveDefCategory, SIGNAL(clicked()), this, SLOT(removeDefCategory()));
 
     ui->TableViewDefCategory->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -131,6 +119,8 @@ void SettingWindow::writeSettings()
     setting.setValue("basicWage", basicWage);
     setting.setValue("basicWageKoefSalary", koefBasicWage);
     setting.endGroup();
+
+    SetFileAttributesW(m_settingFilePath.toStdWString().c_str(), FILE_ATTRIBUTE_HIDDEN);
 }
 
 void SettingWindow::setSettings()
@@ -202,8 +192,6 @@ void SettingWindow::connectToDataBase(QString dbFile)
 
 void SettingWindow::editWidgets()
 {
-//    dataBaseFile = ui->EditDataBaseDir->text();
-
     ui->CmbBoxStaffer->clear();
     for (int ii = 0; ii < m_staffer.size(); ii++) {
         ui->CmbBoxStaffer->addItem(m_staffer.at(ii));
@@ -367,8 +355,18 @@ void SettingWindow::removeCategory()
                                     QString(),
                                     0,
                                     1);
-    if (!btnNo)
+    if (!btnNo) {
+        CategoriesTable categoriesTable;
+        QString currentTitle = ui->CmbBoxCategory->currentText();
+        int currentId = sqlManager.selectIdFromTable(categoriesTable.table, categoriesTable.id,
+                                                     categoriesTable.title, currentTitle);
+        if (currentId < 0) {
         ui->CmbBoxCategory->removeItem(ui->CmbBoxCategory->currentIndex());
+        }
+        else {
+            QMessageBox::warning(this, "Внимание", "Данная запись не может быть удалена");
+        }
+    }
 }
 
 QVector<QString> SettingWindow::getCategory()
@@ -382,7 +380,8 @@ void SettingWindow::setCategory()
     CategoriesTable categoriesTable;
     for (int ii = 0; ii < ui->CmbBoxCategory->count(); ii++) {
         m_category.append(ui->CmbBoxCategory->itemText(ii));
-        sqlManager.insertIntoOneTitleTable(categoriesTable.table, categoriesTable.title, ui->CmbBoxCategory->itemText(ii));
+        sqlManager.insertIntoOneTitleTable(categoriesTable.table, categoriesTable.title,
+                                           ui->CmbBoxCategory->itemText(ii));
     }
 }
 
@@ -415,7 +414,16 @@ void SettingWindow::removeStaffer()
                                     0,
                                     1);
     if (!btnNo) {
+        StaffersTable staffersTable;
+        QString currentTitle = ui->CmbBoxStaffer->currentText();
+        int currentId = sqlManager.selectIdFromTable(staffersTable.table, staffersTable.id,
+                                                     staffersTable.name, currentTitle);
+        if (currentId < 0) {
         ui->CmbBoxStaffer->removeItem(ui->CmbBoxStaffer->currentIndex());
+        }
+        else {
+            QMessageBox::warning(this, "Внимание", "Данная запись не может быть удалена");
+        }
     }
 }
 
@@ -463,8 +471,18 @@ void SettingWindow::removeTax()
                                     QString(),
                                     0,
                                     1);
-    if (!btnNo)
-        ui->CmbBoxTax->removeItem(ui->CmbBoxTax->currentIndex());
+    if (!btnNo) {
+        TaxesTable taxesTable;
+        QString currentTitle = ui->CmbBoxTax->currentText();
+        int currentId = sqlManager.selectIdFromTable(taxesTable.table, taxesTable.id,
+                                                     taxesTable.title, currentTitle);
+        if (currentId < 0) {
+            ui->CmbBoxTax->removeItem(ui->CmbBoxTax->currentIndex());
+        }
+        else {
+            QMessageBox::warning(this, "Внимание", "Данная запись не может быть удалена");
+        }
+    }
 }
 
 QVector<QString> SettingWindow::getTax()
@@ -514,7 +532,37 @@ void SettingWindow::addDefCategory()
 
 void SettingWindow::removeDefCategory()
 {
-
+    int btnNo = QMessageBox::warning(0,
+                                    "Внимание",
+                                    "Удалить запись?",
+                                    "Да",
+                                    "Нет",
+                                    QString(),
+                                    0,
+                                    1);
+    if (!btnNo) {
+        QModelIndexList selectedRows = ui->TableViewDefCategory->selectionModel()->selectedRows();
+        for (int ii = 0; ii < selectedRows.size(); ii++){
+            int selectedRow = selectedRows[ii].row();
+            QModelIndex index = ui->TableViewDefCategory->model()->index(selectedRow, 0);
+            QString categoryTitle = ui->TableViewDefCategory->model()->data(index).toString();
+            index = ui->TableViewDefCategory->model()->index(selectedRow, 1);
+            QString taxTitle = ui->TableViewDefCategory->model()->data(index).toString();
+            CategoriesTable categoriesTable;
+            int categoryId = sqlManager.selectIdFromTable(categoriesTable.table, categoriesTable.id,
+                                                         categoriesTable.title, categoryTitle);
+            TaxesTable taxesTable;
+            int taxId = sqlManager.selectIdFromTable(taxesTable.table, taxesTable.id,
+                                                         taxesTable.title, taxTitle);
+            if (!sqlManager.isDefCategoryRecordExist(categoryId, taxId)) {
+                this->removeRowInTableDefCategory(selectedRow);
+            }
+            else {
+                QMessageBox::warning(0, "Внимание", "Запись с полями: " + categoryTitle + ", "
+                                     + taxTitle +  " не может быть удалена");
+            }
+        }
+    }
 }
 
 QVector<DefinedCategory> SettingWindow::getDefCategory()

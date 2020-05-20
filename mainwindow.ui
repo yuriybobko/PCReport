@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>552</height>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QComboBox QAbstractItemView {selection-background-color: rgb(0, 170, 0)}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QFrame" name="FrameHeader">
@@ -165,7 +168,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QTabBar::tab:selected {background-color: rgb(235, 235, 235)} QWidget {background-color: rgb(220, 220, 220)} QLineEdit, QTextEdit, QComboBox,QTableView, QStandardItem {background-color: white} </string>
+     <string notr="true">QTabBar::tab:selected {background-color: rgb(235, 235, 235)} QWidget {background-color: rgb(220, 220, 220)} QLineEdit, QTextEdit, QComboBox,QTableView, QStandardItem {background-color: white}  QComboBox{background-color: lightgray} QComboBox { combobox-popup: 0 }QComboBox QAbstractItemView {selection-background-color: rgb(0, 170, 0)}</string>
     </property>
     <property name="currentIndex">
      <number>0</number>
