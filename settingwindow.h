@@ -17,6 +17,15 @@
 #define SETTING_FILE "/settings.ini"
 #define DEFAULT_DATABASE_FILE "/database.db"
 
+#define PICT_LOGO ":app_imgs/Logo.jpg"
+#define PICT_SETTINGS ":app_imgs/SettingsIcon.JPG"
+#define PICT_CALENDAR ":app_imgs/DateBook_48.png"
+#define PICT_CALCULATOR ":app_imgs/calculator.png"
+#define PICT_SAVE ":app_imgs/floppy_32.png"
+#define PICT_REPORT ":app_imgs/report_editor.png"
+#define PICT_DELETE ":app_imgs/delete.png"
+#define PICT_ADD ":app_imgs/add.png"
+
 
 namespace Ui {
 class SettingWindow;
@@ -62,6 +71,7 @@ public slots:
     bool isDefCategoryChanged();
     bool isSettingChanged();
 
+    //// TODO: исправит методы удаления полей, с учетом проверки на существование вбазе данных
     // Изменение категорий и сотрудников
     void addCategory();
     void removeCategory();

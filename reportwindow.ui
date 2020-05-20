@@ -18,14 +18,14 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>91</width>
+     <width>111</width>
      <height>16</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Monotype Corsiva</family>
-     <pointsize>10</pointsize>
+     <pointsize>12</pointsize>
      <italic>true</italic>
     </font>
    </property>
@@ -41,9 +41,14 @@
     <rect>
      <x>170</x>
      <y>20</y>
-     <width>81</width>
+     <width>111</width>
      <height>16</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Номер отчета:</string>
@@ -54,14 +59,14 @@
     <rect>
      <x>10</x>
      <y>30</y>
-     <width>91</width>
+     <width>111</width>
      <height>21</height>
     </rect>
    </property>
    <property name="font">
     <font>
      <family>Monotype Corsiva</family>
-     <pointsize>10</pointsize>
+     <pointsize>12</pointsize>
      <italic>true</italic>
     </font>
    </property>
@@ -75,7 +80,7 @@
   <widget class="QLineEdit" name="EditReportNum">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>290</x>
      <y>20</y>
      <width>113</width>
      <height>21</height>
@@ -85,7 +90,7 @@
   <widget class="QPushButton" name="BtnCalendar">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>130</x>
      <y>10</y>
      <width>31</width>
      <height>31</height>
@@ -106,6 +111,11 @@
      <width>391</width>
      <height>111</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="title">
     <string>Принтер</string>
@@ -160,9 +170,14 @@
      <rect>
       <x>10</x>
       <y>50</y>
-      <width>51</width>
+      <width>71</width>
       <height>20</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
     </property>
     <item>
      <property name="text">
@@ -180,6 +195,11 @@
      <height>101</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="title">
     <string>Файл отчета</string>
    </property>
@@ -189,19 +209,30 @@
       <x>10</x>
       <y>20</y>
       <width>361</width>
-      <height>25</height>
+      <height>29</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_5">
      <item>
       <widget class="QPushButton" name="BtnFindReport">
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>Найти</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="EditReportPath"/>
+      <widget class="QLineEdit" name="EditReportPath">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -213,6 +244,11 @@
       <width>75</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>8</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Открыть</string>
@@ -250,9 +286,14 @@
     <rect>
      <x>10</x>
      <y>60</y>
-     <width>71</width>
+     <width>111</width>
      <height>16</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Комментарии:</string>

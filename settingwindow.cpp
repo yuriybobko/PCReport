@@ -32,6 +32,37 @@ SettingWindow::SettingWindow(QWidget *parent) :
     ui->EditBasicWageKoefSalary->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
 
 
+    QString imgDeleteIconPath = PICT_DELETE;
+    QPixmap imgDeleteIcon(imgDeleteIconPath);
+    ui->BtnRemoveTax->setIconSize(QSize(ui->BtnRemoveTax->size().width() - 1,
+                                       ui->BtnRemoveTax->size().height() - 1));
+    ui->BtnRemoveTax->setIcon(imgDeleteIcon);
+    ui->BtnRemoveStaffer->setIconSize(QSize(ui->BtnRemoveStaffer->size().width() - 1,
+                                       ui->BtnRemoveStaffer->size().height() - 1));
+    ui->BtnRemoveStaffer->setIcon(imgDeleteIcon);
+    ui->BtnRemoveCategory->setIconSize(QSize(ui->BtnRemoveCategory->size().width() - 1,
+                                       ui->BtnRemoveCategory->size().height() - 1));
+    ui->BtnRemoveCategory->setIcon(imgDeleteIcon);
+    ui->BtnRemoveDefCategory->setIconSize(QSize(ui->BtnRemoveDefCategory->size().width() - 1,
+                                       ui->BtnRemoveDefCategory->size().height() - 1));
+    ui->BtnRemoveDefCategory->setIcon(imgDeleteIcon);
+
+    QString imgAddIconPath = PICT_ADD;
+    QPixmap imgAddIcon(imgAddIconPath);
+    ui->BtnAddTax->setIconSize(QSize(ui->BtnAddTax->size().width() - 1,
+                                       ui->BtnAddTax->size().height() - 1));
+    ui->BtnAddTax->setIcon(imgAddIcon);
+    ui->BtnAddStaffer->setIconSize(QSize(ui->BtnAddStaffer->size().width() - 1,
+                                       ui->BtnAddStaffer->size().height() - 1));
+    ui->BtnAddStaffer->setIcon(imgAddIcon);
+    ui->BtnAddCategory->setIconSize(QSize(ui->BtnAddCategory->size().width() - 1,
+                                       ui->BtnAddCategory->size().height() - 1));
+    ui->BtnAddCategory->setIcon(imgAddIcon);
+    ui->BtnAddDefCategory->setIconSize(QSize(ui->BtnAddDefCategory->size().width() - 1,
+                                       ui->BtnAddDefCategory->size().height() - 1));
+    ui->BtnAddDefCategory->setIcon(imgAddIcon);
+
+
     this->openDataBase(dataBaseFile);
 
     SetFileAttributesW(m_settingFilePath.toStdWString().c_str(), FILE_ATTRIBUTE_HIDDEN);

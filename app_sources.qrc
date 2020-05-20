@@ -4,5 +4,11 @@
         <file>app_imgs/Logo.jpg</file>
         <file>app_imgs/CalendarIcon.JPG</file>
         <file>app_imgs/Logo_small.jpg</file>
+        <file>app_imgs/DateBook_48.png</file>
+        <file>app_imgs/calculator.png</file>
+        <file>app_imgs/floppy_32.png</file>
+        <file>app_imgs/report_editor.png</file>
+        <file>app_imgs/add.png</file>
+        <file>app_imgs/delete.png</file>
     </qresource>
 </RCC>

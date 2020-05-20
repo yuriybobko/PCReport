@@ -15,6 +15,7 @@
 #include "calendarwindow.h"
 #include "structures.h"
 #include "sqlmanager.h"
+#include "settingwindow.h"
 
 struct ReportDefCategoryRecord {
     QString category;

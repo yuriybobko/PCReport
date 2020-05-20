@@ -9,7 +9,7 @@ ReportWindow::ReportWindow(QWidget *parent) :
     this->setWindowTitle("Печать отчета");
     this->setFixedSize(this->width(), this->height());
 
-    QString imgCalendarIconPath = ":app_imgs/CalendarIcon.JPG";
+    QString imgCalendarIconPath = PICT_CALENDAR;
     QPixmap imgCalendarIcon(imgCalendarIconPath);
     ui->BtnCalendar->setIconSize(QSize(ui->BtnCalendar->size().width() - 1,
                                        ui->BtnCalendar->size().height() - 1));

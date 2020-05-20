@@ -103,7 +103,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::setChildWidgets()
 {
-    QString imgLogoFile=":app_imgs/Logo.jpg";
+    QString imgLogoFile = PICT_LOGO;
     QPixmap imgLogo(imgLogoFile);
     ui->LblImgLogo->setScaledContents(true);
     ui->LblImgLogo->setPixmap(imgLogo);
@@ -119,14 +119,15 @@ void MainWindow::setChildWidgets()
     ui->ScrollAreaFormBtnCategory->setWidgetResizable(false);
     ui->ScrollAreaFormBtnCategory->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    QString imgSettingsIconPath = ":app_imgs/SettingsIcon.JPG";
+    QString imgSettingsIconPath = PICT_SETTINGS;
     QPixmap imgSettingsIcon(imgSettingsIconPath);
     ui->BtnSettings->setIconSize(QSize(ui->BtnSettings->size().width() - 5,
                                        ui->BtnSettings->size().height() - 5));
     ui->BtnSettings->setIcon(imgSettingsIcon);
     ui->BtnSettings->setToolTip("Настройки");
 
-    QString imgCalendarIconPath = ":app_imgs/CalendarIcon.JPG";
+//    QString imgCalendarIconPath = ":app_imgs/CalendarIcon.JPG";
+    QString imgCalendarIconPath = PICT_CALENDAR;
     QPixmap imgCalendarIcon(imgCalendarIconPath);
     ui->BtnCalendar->setIconSize(QSize(ui->BtnCalendar->size().width() - 1,
                                        ui->BtnCalendar->size().height() - 1));
@@ -177,6 +178,20 @@ void MainWindow::setChildWidgets()
     ui->CmbBoxTableView->addItem("Записи категорий");
     ui->CmbBoxTableView->addItem("Записи заработной платы");
     ui->CmbBoxTableView->addItem("Записи расходов");
+
+    QString imgCalculatorIconPath = PICT_CALCULATOR;
+    QPixmap imgCalculatorIcon(imgCalculatorIconPath);
+    ui->BtnFillFrameTotalSum->setIcon(imgCalculatorIcon);
+
+    QString imgSaveIconPath = PICT_SAVE;
+    QPixmap imgSaveIcon(imgSaveIconPath);
+    ui->BtnWriteRegisterToDataBase->setIcon(imgSaveIcon);
+
+    QString imgReportIconPath = PICT_REPORT;
+    QPixmap imgReportIcon(imgReportIconPath);
+    ui->BtnShowReportWindow->setIconSize(QSize(ui->BtnSettings->size().width() - 5,
+                                               ui->BtnSettings->size().height() - 5));
+    ui->BtnShowReportWindow->setIcon(imgReportIcon);
 }
 
 void MainWindow::addFormBtnCategory(QString strCategory)
