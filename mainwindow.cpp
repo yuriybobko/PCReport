@@ -476,7 +476,6 @@ void MainWindow::writeDefCategoryRecordToDataBase()
             }
             if (isRecordExist) {
                 if (sqlManager.insertIntoDefCategoryRegisterTable(defCtgryRegRecord)) {
-                    //this->showStatusBar("Запись в реестр категорий выполнена");
                 }
                 else {
                     this->showStatusBar("Не удается выполнить запись в реестр категорий");
@@ -485,16 +484,51 @@ void MainWindow::writeDefCategoryRecordToDataBase()
             }
         }
     }
-    if (isAnyRecordExist) {
-        this->writeSalaryRecordToDataBase();
-        this->showStatusBar("Запись в реестр категорий выполнена");
-        this->clearDailyReportTabFinanceEdits();
-        for (int ii = 0; ii < m_FormCategory.size(); ii++) {
-            m_FormCategory.at(ii)->clearEdits();
+//    if (isAnyRecordExist) {
+//        this->writeSalaryRecordToDataBase();
+//        this->showStatusBar("Запись в реестр категорий выполнена");
+//        this->clearDailyReportTabFinanceEdits();
+//        for (int ii = 0; ii < m_FormCategory.size(); ii++) {
+//            m_FormCategory.at(ii)->clearEdits();
+//        }
+//    }
+//    else {
+//        int btnNo = QMessageBox::warning(0,
+//                                        "Внимание! Все поля пусты",
+//                                        "Выполнить запись только зарплаты в базу данных?",
+//                                        "Да",
+//                                        "Нет",
+//                                        QString(),
+//                                        0,
+//                                        1);
+//        if (!btnNo) {
+//            this->writeSalaryRecordToDataBase();
+//            this->showStatusBar("Запись в реестр категорий выполнена");
+//        }
+//        else {
+//            this->showStatusBar("Все поля пусты");
+//        }
+//    }
+    if (!isAnyRecordExist) {
+        int btnNo = QMessageBox::warning(0,
+                                        "Внимание! Все поля пусты",
+                                        "Выполнить запись только зарплаты в базу данных?",
+                                        "Да",
+                                        "Нет",
+                                        QString(),
+                                        0,
+                                        1);
+        if (btnNo) {
+            this->showStatusBar("Все поля пусты");
+            return;
         }
     }
-    else
-        this->showStatusBar("Все поля пусты");
+    this->writeSalaryRecordToDataBase();
+    this->showStatusBar("Запись в реестр категорий выполнена");
+    this->clearDailyReportTabFinanceEdits();
+    for (int ii = 0; ii < m_FormCategory.size(); ii++) {
+        m_FormCategory.at(ii)->clearEdits();
+    }
 }
 
 void MainWindow::writeSalaryRecordToDataBase()

@@ -25,8 +25,6 @@ public:
     QSqlTableModel *getDefCategoryTable();
     bool setDefCategoryModel();
 
-    void testFunc();
-
 signals:
     // Сигнал в status bar
     void signalToStatusBar(QString statusBarText);

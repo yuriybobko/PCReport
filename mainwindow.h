@@ -11,7 +11,7 @@
 #include <QDebug>
 #include <QDate>
 #include <QTime>
-#include <QStyleFactory>
+#include <QLibraryInfo>
 #include "formbtncategory.h"
 #include "formcategory.h"
 #include "settingwindow.h"
@@ -44,14 +44,14 @@ private slots:
     void setAdminMode();
 
     void addFormBtnCategory(QString strCategory);
-    void addFormBtnCategory(DefinedCategory defCategory); // New!
+    void addFormBtnCategory(DefinedCategory defCategory);
 
     void removeFormBtnCategory(int formId);
 
     void showFormCategory(int formId);
 
     void editFormBtnCategory(const QVector <QString> categoryVector);
-    void editFormBtnCategory(const QVector <DefinedCategory> defCategoryVector); // New!
+    void editFormBtnCategory(const QVector <DefinedCategory> defCategoryVector);
 
     void addStaffer(QString strStaffer);
 

@@ -2,7 +2,6 @@
 
 SqlManager::SqlManager(QObject *parent) : QObject(parent)
 {
-    dataBase = QSqlDatabase::addDatabase("QSQLITE");
 }
 
 SqlManager::~SqlManager()
@@ -14,53 +13,35 @@ SqlManager::~SqlManager()
 
 void SqlManager::connectToDataBase(const QString dataBaseFile)
 {
-        if (m_defCategoryTable != nullptr)
-            delete m_defCategoryTable;
-        if (dataBase.isOpen()) {
-            dataBase.close();
-        }
+    if (dataBase.driverName().isEmpty())
+        dataBase = QSqlDatabase::addDatabase("QSQLITE");
+
+    if (dataBase.databaseName() == dataBaseFile) {
+        return;
+    }
+
+    if (m_defCategoryTable != nullptr)
+        delete m_defCategoryTable;
+    if (dataBase.isOpen()) {
+        dataBase.close();
+    }
     if (QFile(dataBaseFile).exists()) {
-        this->openDataBase(dataBaseFile);
+        if (this->openDataBase(dataBaseFile)) {
+            emit signalToStatusBar("База данных открыта");
+        }
+        else {
+            emit signalToStatusBar("Не удается открыть базу данных");
+        }
         m_currentDataBaseFile = dataBaseFile;
-        emit signalToStatusBar("База данных открыта!");
-        qDebug() << "База данных открыта!";
     }
     else {
-        emit signalToStatusBar("База данных создана!");
-        this->createDataBase(dataBaseFile);
+        if (this->createDataBase(dataBaseFile)) {
+            emit signalToStatusBar("База данных создана!");
+        }
+        else {
+            emit signalToStatusBar("Не удается создать базу данных");
+        }
     }
-}
-
-void SqlManager::testFunc()
-{
-    QSqlDatabase db;
-    db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("D:/Temp/staf_data.db");
-    if (!db.open())
-    {
-        qDebug() << "Opening error!";
-        return;
-    }
-
-    //Осуществляем запрос
-    QSqlQuery query;
-    if (!query.exec("SELECT id, task_typ FROM tasks"))
-    {
-        emit signalToStatusBar("Команда не выполнима");
-        return;
-    }
-
-    //Выводим значения из запроса
-    while (query.next())
-    {
-    QString id = query.value(0).toString();
-    QString firstName = query.value(1).toString();
-//    QString lastName = query.value(2).toString();
-//    QString salary = query.value(3).toString();
-    qDebug() << id << " " << firstName;;
-    }
-    db.close();
-
 }
 
 bool SqlManager::insertIntoOneTitleTable(const QString table, const QString title, const QString value)
@@ -805,6 +786,7 @@ int SqlManager::isDefCategoryRecordExist(int categoryId, int taxId)
 bool SqlManager::openDataBase(QString databaseFile)
 {
     dataBase.setDatabaseName(databaseFile);
+    if (dataBase.isValid()) {
         if(dataBase.open()) {
             m_defCategoryTable = new QSqlTableModel(this, dataBase);
             QSqlQuery query;
@@ -814,8 +796,14 @@ bool SqlManager::openDataBase(QString databaseFile)
                 qDebug() << "foreign_keys = off";
             return true;
         } else {
+            QMessageBox::warning(0, "Warning", "SqlManager:: DataBase is NOT opened!");
             return false;
         }
+    }
+    else {
+        QMessageBox::warning(0, "Warning", "Database is NOT valid!");
+        return false;
+    }
 }
 
 bool SqlManager::createDataBase(QString databaseFile)

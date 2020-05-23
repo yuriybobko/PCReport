@@ -50,10 +50,7 @@ SettingWindow::SettingWindow(QWidget *parent) :
                                        ui->BtnAddDefCategory->size().height() - 1));
     ui->BtnAddDefCategory->setIcon(imgAddIcon);
 
-
-    this->openDataBase(dataBaseFile);
-
-//    SetFileAttributesW(m_settingFilePath.toStdWString().c_str(), FILE_ATTRIBUTE_HIDDEN);
+//    this->openDataBase(dataBaseFile);
 
 
     connect(ui->BtnCancel, SIGNAL(clicked()), this, SLOT(cancelSettings()));
@@ -69,7 +66,7 @@ SettingWindow::SettingWindow(QWidget *parent) :
         }
     });
     connect(ui->BtnOpenDataBase, &QPushButton::clicked, [this]() {
-        if (dataBaseFile != ui->EditDataBaseDir->text())
+        //if (dataBaseFile != ui->EditDataBaseDir->text())
             this->openDataBase(ui->EditDataBaseDir->text());
     });
 

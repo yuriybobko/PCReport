@@ -6,7 +6,21 @@
 
 int main(int argc, char *argv[])
 {
+//    QStringList paths = QCoreApplication::libraryPaths();
+//    paths.append(".");
+//    paths.append("imageformats");
+//    paths.append("platforms");
+//    paths.append("sqldrivers");
+//    QCoreApplication::setLibraryPaths(paths);
     QApplication a(argc, argv);
+
+//    if (QSqlDatabase::isDriverAvailable("QSQLITE")){
+//        QMessageBox::warning(0, "Warning", "QSqlite driver found!");
+//        qDebug("QSqlite driver found.");
+//    } else {
+//        QMessageBox::warning(0, "Warning", "QSqlite driver NOT found!");
+//        qFatal("QSqlite driver NOT found!");
+//    }
 
     QSystemSemaphore semaphore("phc_report_semaphore", 1);
     semaphore.acquire();
