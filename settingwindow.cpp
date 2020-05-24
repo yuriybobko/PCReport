@@ -7,7 +7,8 @@ SettingWindow::SettingWindow(QWidget *parent) :
     ui(new Ui::SettingWindow)
 {
     ui->setupUi(this);
-    this->setFixedSize(this->width(), this->height());
+
+//    this->setFixedSize(this->width(), this->height());
 
     m_settingFilePath = QApplication::applicationDirPath() + SETTING_FILE;
 
@@ -52,6 +53,8 @@ SettingWindow::SettingWindow(QWidget *parent) :
 
 //    this->openDataBase(dataBaseFile);
 
+    this->editTableDefCategory();
+
 
     connect(ui->BtnCancel, SIGNAL(clicked()), this, SLOT(cancelSettings()));
     connect(ui->BtnOk, SIGNAL(clicked()), this, SLOT(setSettings()));
@@ -66,7 +69,6 @@ SettingWindow::SettingWindow(QWidget *parent) :
         }
     });
     connect(ui->BtnOpenDataBase, &QPushButton::clicked, [this]() {
-        //if (dataBaseFile != ui->EditDataBaseDir->text())
             this->openDataBase(ui->EditDataBaseDir->text());
     });
 
@@ -80,9 +82,16 @@ SettingWindow::SettingWindow(QWidget *parent) :
     connect(ui->BtnAddDefCategory, SIGNAL(clicked()), this, SLOT(addDefCategory()));
     connect(ui->BtnRemoveDefCategory, SIGNAL(clicked()), this, SLOT(removeDefCategory()));
 
-    ui->TableViewDefCategory->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(ui->BtnSelectUserMode, &QPushButton::clicked, [this, parent]() {
+        MainWindow *parentWnd = qobject_cast<MainWindow*> (parent);
+        parentWnd->openUserModeDialog();
+        if (parentWnd->isAdminMode())
+            ui->LblUserMode->setText("Режим администратора");
+        else
+            ui->LblUserMode->setText("Режим пользователя");
+    });
 
-    this->hide();
+    ui->TableViewDefCategory->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
 SettingWindow::~SettingWindow()
@@ -95,13 +104,13 @@ SettingWindow::~SettingWindow()
 void SettingWindow::readSettings()
 {
     QSettings setting(m_settingFilePath, QSettings::IniFormat);
-    setting.beginGroup("DATA_BASE_DIRECTORY");
-    dataBaseFile = setting.value("dataBaseFile",
+    setting.beginGroup(GROUP_DATABASE_DIRECTORY);
+    dataBaseFile = setting.value(VAR_DATABASE_FILE,
                                  QApplication::applicationDirPath() + DEFAULT_DATABASE_FILE).toString();
     setting.endGroup();
-    setting.beginGroup("SALARY_PARAMETERS");
-    basicWage = setting.value("basicWage", DEFAULT_BASIC_WAGE).toFloat();
-    koefBasicWage = setting.value("basicWageKoefSalary", DEFAULT_BASIC_WAGE_KOEF_SALARY).toFloat();
+    setting.beginGroup(GROUP_SALARY_PARAMETERS);
+    basicWage = setting.value(VAR_BASIC_WAGE, DEFAULT_BASIC_WAGE).toFloat();
+    koefBasicWage = setting.value(VAR_BASIC_WAGE_KOEF_SALARY, DEFAULT_BASIC_WAGE_KOEF_SALARY).toFloat();
     setting.endGroup();
 }
 
@@ -109,12 +118,12 @@ void SettingWindow::writeSettings()
 {
     QSettings setting(m_settingFilePath, QSettings::IniFormat);
     setting.clear();
-    setting.beginGroup("DATA_BASE_DIRECTORY");
-    setting.setValue("dataBaseFile", dataBaseFile);
+    setting.beginGroup(GROUP_DATABASE_DIRECTORY);
+    setting.setValue(VAR_DATABASE_FILE, dataBaseFile);
     setting.endGroup();
-    setting.beginGroup("SALARY_PARAMETERS");
-    setting.setValue("basicWage", basicWage);
-    setting.setValue("basicWageKoefSalary", koefBasicWage);
+    setting.beginGroup(GROUP_SALARY_PARAMETERS);
+    setting.setValue(VAR_BASIC_WAGE, basicWage);
+    setting.setValue(VAR_BASIC_WAGE_KOEF_SALARY, koefBasicWage);
     setting.endGroup();
 
     SetFileAttributesW(m_settingFilePath.toStdWString().c_str(), FILE_ATTRIBUTE_HIDDEN);
@@ -168,9 +177,17 @@ void SettingWindow::cancelSettings()
     this->hide();
 }
 
+QString SettingWindow::getSettingFilePath()
+{
+    return m_settingFilePath;
+}
+
 void SettingWindow::openDataBase(const QString dbFile)
 {
     this->connectToDataBase(dbFile);
+    if (sqlManager.isDatabaseOpen()) {
+        emit signalToSetEnableWorkFields(true);
+    }
     this->editWidgets();
 }
 
@@ -305,23 +322,23 @@ bool SettingWindow::isDefCategoryChanged()
 
 bool SettingWindow::isSettingChanged()
 {
-    bool anyChnanges = false;
+    bool anyChanges = false;
     if (this->isEditChanged()) {
-        anyChnanges = true;
+        anyChanges = true;
     }
     if (this->isStafferChanged()) {
-        anyChnanges = true;
+        anyChanges = true;
     }
     if (this->isCategoryChanged()) {
-        anyChnanges = true;
+        anyChanges = true;
     }
     if (this->isTaxChanged()) {
-        anyChnanges = true;
+        anyChanges = true;
     }
     if (this->isDefCategoryChanged()) {
-        anyChnanges = true;
+        anyChanges = true;
     }
-    return anyChnanges;
+    return anyChanges;
 }
 
 void SettingWindow::addCategory()
@@ -344,6 +361,9 @@ void SettingWindow::addCategory()
 
 void SettingWindow::removeCategory()
 {
+    if (ui->CmbBoxCategory->currentText().isEmpty()) {
+        return;
+    }
     int btnNo = QMessageBox::warning(0,
                                     "Внимание",
                                     "Удалить запись?",
@@ -402,6 +422,9 @@ void SettingWindow::addStaffer()
 
 void SettingWindow::removeStaffer()
 {
+    if (ui->CmbBoxStaffer->currentText().isEmpty()) {
+        return;
+    }
     int btnNo = QMessageBox::warning(0,
                                     "Внимание",
                                     "Удалить запись?",
@@ -460,6 +483,9 @@ void SettingWindow::addTax()
 
 void SettingWindow::removeTax()
 {
+    if (ui->CmbBoxTax->currentText().isEmpty()) {
+        return;
+    }
     int btnNo = QMessageBox::warning(0,
                                     "Внимание",
                                     "Удалить запись?",
@@ -529,6 +555,10 @@ void SettingWindow::addDefCategory()
 
 void SettingWindow::removeDefCategory()
 {
+    QModelIndexList selectedRows = ui->TableViewDefCategory->selectionModel()->selectedRows();
+    if (selectedRows.size() < 1) {
+        return;
+    }
     int btnNo = QMessageBox::warning(0,
                                     "Внимание",
                                     "Удалить запись?",
@@ -538,7 +568,7 @@ void SettingWindow::removeDefCategory()
                                     0,
                                     1);
     if (!btnNo) {
-        QModelIndexList selectedRows = ui->TableViewDefCategory->selectionModel()->selectedRows();
+
         for (int ii = 0; ii < selectedRows.size(); ii++){
             int selectedRow = selectedRows[ii].row();
             QModelIndex index = ui->TableViewDefCategory->model()->index(selectedRow, 0);

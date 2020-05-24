@@ -16,8 +16,20 @@
 
 #define SETTING_FILE "/settings.ini"
 #define DEFAULT_DATABASE_FILE "/database.db"
+#define GROUP_DATABASE_DIRECTORY "DATA_BASE_DIRECTORY"
+#define VAR_DATABASE_FILE "dataBaseFile"
+#define GROUP_SALARY_PARAMETERS "SALARY_PARAMETERS"
+#define VAR_BASIC_WAGE "basicWage"
+#define VAR_BASIC_WAGE_KOEF_SALARY "basicWageKoefSalary"
+#define GROUP_MAIN_WND_GEOMETRY "MAIN_WINDOW_GEOMETRY"
+#define VAR_MAIN_WND_WIDTH "mainWindowWidth"
+#define VAR_MAIN_WND_HEIGHT "mainWindowHeight"
+#define DEFAULT_MAIN_WND_WIDTH 880
+#define DEFAULT_MAIN_WND_HEIGHT 600
 
 #define PICT_LOGO ":app_imgs/Logo.jpg"
+#define PICT_LOGO_SMALL ":app_imgs/Logo_small.jpg"
+#define PICT_LOGO_95 ":app_imgs/Logo_95.jpg"
 #define PICT_SETTINGS ":app_imgs/SettingsIcon.JPG"
 #define PICT_CALENDAR ":app_imgs/DateBook_48.png"
 #define PICT_CALCULATOR ":app_imgs/calculator.png"
@@ -53,6 +65,7 @@ public slots:
     void writeSettings();
     void setSettings();
     void cancelSettings();
+    QString getSettingFilePath();
 
     // Методы для настроек значений из БД
     void openDataBase(const QString dbFile);
@@ -114,6 +127,9 @@ signals:
     void signalToEditStaffer(const QVector <QString> stafferVector);
 
     void signalToEditFormBtnCategory(QVector <DefinedCategory> defCategoryVector);
+
+    // Сигнал на доступ к работе в главном окне, если база данных открыта
+    void signalToSetEnableWorkFields(bool isDatabaseOpen);
 
 private:
     void virtual reject();

@@ -7,7 +7,6 @@ ReportWindow::ReportWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle("Печать отчета");
-    this->setFixedSize(this->width(), this->height());
 
     QString imgCalendarIconPath = PICT_CALENDAR;
     QPixmap imgCalendarIcon(imgCalendarIconPath);
@@ -179,7 +178,7 @@ void ReportWindow::printReport()
     this->drawTotalCashAndTaxTitle(painter, &font, &pxbeg, &pybeg, rectFrame, &rectWidth, &rectHeight);
     // ---------------------------------------------------------------------
     // печать поля З/П
-    this->drawTotalSalaryField(painter, &font, &pxbeg, &pybeg, rectFrame, &rectWidth, &rectHeight);
+    this->drawTotalSalaryField(painter, &pxbeg, &pybeg, rectFrame, &rectWidth, &rectHeight);
     // ---------------------------------------------------------------------
     // печать поля комментариев
     this->drawCommentField(painter, &font, &pxbeg, &pybeg, rectFrame);
@@ -309,7 +308,7 @@ void ReportWindow::drawTotalCashAndTaxTitle(QPainter *painter, QFont *font, int 
             font->setBold(false);
             painter->setFont(*font);
             *pxbeg += *rectWidth;
-            this->drawTotalTaxTitleField(painter, font, pxbeg, pybeg, rectFrame,
+            this->drawTotalTaxTitleField(painter, pxbeg, pybeg, rectFrame,
                                          rectWidth, rectHeight, taxesList);
         }
         else {
@@ -325,7 +324,7 @@ void ReportWindow::drawTotalCashAndTaxTitle(QPainter *painter, QFont *font, int 
                 taxValue.append(sqlManager.selectTotalSumInPeriodByTaxCash(selectedDate, selectedDate,
                                                                            taxId, cashId));
             }
-            this->drawTotalTaxValueField(painter, font, pxbeg, pybeg, rectFrame,
+            this->drawTotalTaxValueField(painter, pxbeg, pybeg, rectFrame,
                                          rectWidth, rectHeight, taxValue);
             taxValue.clear();
         }
@@ -334,7 +333,7 @@ void ReportWindow::drawTotalCashAndTaxTitle(QPainter *painter, QFont *font, int 
     *pxbeg = px0;
 }
 
-void ReportWindow::drawTotalTaxTitleField(QPainter *painter, QFont *font, int *pxbeg, int *pybeg,
+void ReportWindow::drawTotalTaxTitleField(QPainter *painter, int *pxbeg, int *pybeg,
                                      QRect rectFrame, int *rectWidth, int *rectHeight,
                                      QVector<QString> taxes)
 {
@@ -349,7 +348,7 @@ void ReportWindow::drawTotalTaxTitleField(QPainter *painter, QFont *font, int *p
     *pxbeg = px0;
 }
 
-void ReportWindow::drawTotalTaxValueField(QPainter *painter, QFont *font, int *pxbeg, int *pybeg,
+void ReportWindow::drawTotalTaxValueField(QPainter *painter, int *pxbeg, int *pybeg,
                                           QRect rectFrame, int *rectWidth, int *rectHeight,
                                           QVector<float> taxValue)
 {
@@ -365,7 +364,7 @@ void ReportWindow::drawTotalTaxValueField(QPainter *painter, QFont *font, int *p
     *pxbeg = px0;
 }
 
-void ReportWindow::drawTotalSalaryField(QPainter *painter, QFont *font, int *pxbeg, int *pybeg, QRect rectFrame,
+void ReportWindow::drawTotalSalaryField(QPainter *painter, int *pxbeg, int *pybeg, QRect rectFrame,
                                         int *rectWidth, int *rectHeight)
 {
     StaffersTable stafferTable;

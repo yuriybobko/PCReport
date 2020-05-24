@@ -11,7 +11,8 @@
 #include <QDebug>
 #include <QDate>
 #include <QTime>
-#include <QLibraryInfo>
+//#include <QLibraryInfo>
+#include <QDesktopWidget>
 #include "formbtncategory.h"
 #include "formcategory.h"
 #include "settingwindow.h"
@@ -36,12 +37,16 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void openUserModeDialog();
     void setAdminStatus(bool isAdmin);
+    bool isAdminMode();
 
 private slots:
     void setChildWidgets();
 
     void setAdminMode();
+
+    void setEnableWorkFields(bool isDatabaseOpen);
 
     void addFormBtnCategory(QString strCategory);
     void addFormBtnCategory(DefinedCategory defCategory);
@@ -95,10 +100,15 @@ private slots:
     // Удалить строку из таблицы записей
     void removeRecordInTableView();
 
+    // Работа с настройками
+    void readSettings();
+    void writeSettings();
+
+    void closeApp();
+
     // Методы событий
     void closeEvent(QCloseEvent *event);
 
-    // Тестовые функции
 
 private:
     Ui::MainWindow *ui;
@@ -108,6 +118,8 @@ private:
 
     int m_dHeight = 50;
     int m_dWidth = 50;
+    int m_wndInitWidth;
+    int m_wndInitHeight;
 
     //QFrame *FrameLayoutCmdBtns;
     QVBoxLayout *LayoutFormBtnCategory;
@@ -124,5 +136,7 @@ private:
     RegisterType m_registerType;
 
     bool m_isAdmin;
+
+    QVBoxLayout *LayoutDefCategory;
 };
 #endif // MAINWINDOW_H

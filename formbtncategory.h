@@ -2,12 +2,16 @@
 #define FORMBTNCATEGORY_H
 
 #include <QWidget>
+#include <QFrame>
 
+//namespace Ui {
+//class FormBtnCategory;
+//}
 namespace Ui {
-class FormBtnCategory;
+class FormBtnShowCategory;
 }
 
-class FormBtnCategory : public QWidget
+class FormBtnCategory :  public QFrame // public QWidget
 {
     Q_OBJECT
 
@@ -19,12 +23,11 @@ public:
     void setFormId(int newFormId);
 
 signals:
-    //void signalToRemoveForm(int formId);
-
     void signalToShowFormCategory(int formId);
 
 private:
-    Ui::FormBtnCategory *ui;
+//    Ui::FormBtnCategory *ui;
+    Ui::FormBtnShowCategory *ui;
 
     int m_formId;
 

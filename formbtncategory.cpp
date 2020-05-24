@@ -1,21 +1,15 @@
 #include "formbtncategory.h"
-#include "ui_formbtncategory.h"
+//#include "ui_formbtncategory.h"
+#include "ui_formbtnshowcategory.h"
 
 FormBtnCategory::FormBtnCategory(int formId, QString category, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FormBtnCategory)
+    QFrame(parent),  //QWidget(parent),
+    ui(new Ui::FormBtnShowCategory)
 {
     ui->setupUi(this);
 
     m_formId = formId;
     ui->LblCategory->setText(QString::number(m_formId) + " - " + category);
-
-
-    /*connect(ui->BtnRemove, &QPushButton::clicked, [this]()
-    {
-        emit this->signalToRemoveForm(m_formId);
-    });
-    connect(this, SIGNAL(signalToRemoveForm(int)), parent, SLOT(removeFormBtnCategory(int)));*/
 
     connect(ui->BtnShow, &QPushButton::clicked, [this]()
     {
@@ -25,8 +19,8 @@ FormBtnCategory::FormBtnCategory(int formId, QString category, QWidget *parent) 
 }
 
 FormBtnCategory::FormBtnCategory(int formId, QString category, QString tax, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::FormBtnCategory)
+    QFrame(parent),
+    ui(new Ui::FormBtnShowCategory)
 {
     ui->setupUi(this);
 

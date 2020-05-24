@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     QApplication::setStyle("Fusion");
     this->setWindowTitle("PhC-Report");
-    this->setFixedSize(this->width(), this->height());
 
     m_settingWndw = new SettingWindow(this);
     m_reportWndw = new ReportWindow(this);
@@ -22,9 +21,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(m_settingWndw, SIGNAL(signalToEditFormBtnCategory(QVector <DefinedCategory>)),
             this, SLOT(editFormBtnCategory(QVector <DefinedCategory>)));
+    connect(m_settingWndw, SIGNAL(signalToSetEnableWorkFields(bool)),
+            this, SLOT(setEnableWorkFields(bool)));
 
     connect(ui->BtnSettings, SIGNAL(clicked()), this, SLOT(showSettingWindow()));
-    //connect(ui->BtnCalendar, SIGNAL(clicked()), this, SLOT(showCalendarWindow()));
     connect(ui->BtnCalendar, &QPushButton::clicked, [this]() {
         QString selectedString = this->getDateFromCalendar();
         if (!selectedString.isEmpty())
@@ -54,8 +54,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->BtnWriteRegisterToDataBase, SIGNAL(clicked()), this, SLOT(writeDefCategoryRecordToDataBase()));
     connect(ui->BtnWriteCostsToDataBase, SIGNAL(clicked()), this, SLOT(writeCostsRecordToDataBase()));
 
-    connect(ui->BtnExit, &QPushButton::clicked, []() {
-        QApplication::exit();
+    connect(ui->BtnExit, &QPushButton::clicked, [this]() {
+        this->closeApp();
     });
 
     // Сигнал в status bar
@@ -76,6 +76,13 @@ MainWindow::MainWindow(QWidget *parent)
         this->m_reportWndw->show();
     });
 
+    this->readSettings();
+    this->setGeometry(this->geometry().left(), this->geometry().top(),
+                      this->m_wndInitWidth, this->m_wndInitHeight);
+    QRect frameRect = frameGeometry();
+    QDesktopWidget desktop;
+    frameRect.moveCenter(desktop.availableGeometry().center());
+    this->move(frameRect.topLeft());
     this->setChildWidgets();
 }
 
@@ -96,11 +103,51 @@ MainWindow::~MainWindow()
     if (this->LayoutFormBtnCategory)
         delete this->LayoutFormBtnCategory;
 
+    if (this->LayoutDefCategory)
+        delete this->LayoutDefCategory;
+
     if (m_settingWndw)
         delete m_settingWndw;
     if (m_reportWndw)
         delete m_reportWndw;
     delete ui;
+}
+
+void MainWindow::openUserModeDialog()
+{
+    bool btnOkCmbBox = false;
+    bool isAdmin = false;
+    QStringList userType;
+    userType.append("Пользователь");
+    userType.append("Администратор");
+    QString strUserType = QInputDialog::getItem(0,
+                                           "Тип работы",
+                                           "Пользователь:",
+                                           userType,
+                                           0,
+                                           0,
+                                           &btnOkCmbBox,
+                                           Qt::WindowTitleHint);
+    if (btnOkCmbBox) {
+        if (strUserType == "Администратор") {
+            bool btnOkAdminPass = false;
+            QString strPassword = QInputDialog::getText(0,
+                                                       "Введите пароль",
+                                                       "Пароль:",
+                                                       QLineEdit::Normal,
+                                                       "",
+                                                       &btnOkAdminPass,
+                                                       Qt::WindowTitleHint);
+            if (btnOkAdminPass) {
+                if (strPassword == "12345")
+                    isAdmin = true;
+            }
+        }
+        else {
+            isAdmin = false;
+        }
+    }
+    this->setAdminStatus(isAdmin);
 }
 
 void MainWindow::setAdminStatus(bool isAdmin)
@@ -109,9 +156,14 @@ void MainWindow::setAdminStatus(bool isAdmin)
     this->setAdminMode();
 }
 
+bool MainWindow::isAdminMode()
+{
+    return m_isAdmin;
+}
+
 void MainWindow::setChildWidgets()
 {
-    QString imgLogoFile = PICT_LOGO;
+    QString imgLogoFile = PICT_LOGO_95;
     QPixmap imgLogo(imgLogoFile);
     ui->LblImgLogo->setScaledContents(true);
     ui->LblImgLogo->setPixmap(imgLogo);
@@ -134,7 +186,6 @@ void MainWindow::setChildWidgets()
     ui->BtnSettings->setIcon(imgSettingsIcon);
     ui->BtnSettings->setToolTip("Настройки");
 
-//    QString imgCalendarIconPath = ":app_imgs/CalendarIcon.JPG";
     QString imgCalendarIconPath = PICT_CALENDAR;
     QPixmap imgCalendarIcon(imgCalendarIconPath);
     ui->BtnCalendar->setIconSize(QSize(ui->BtnCalendar->size().width() - 1,
@@ -184,7 +235,6 @@ void MainWindow::setChildWidgets()
     ui->TableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     ui->CmbBoxTableView->addItem(CMBBOX_ITEM_CATEGORY);
-//    ui->CmbBoxTableView->addItem("Записи заработной платы");
     ui->CmbBoxTableView->addItem(CMBBOX_ITEM_COSTS);
 
     QString imgCalculatorIconPath = PICT_CALCULATOR;
@@ -200,34 +250,50 @@ void MainWindow::setChildWidgets()
     ui->BtnShowReportWindow->setIconSize(QSize(ui->BtnSettings->size().width() - 5,
                                                ui->BtnSettings->size().height() - 5));
     ui->BtnShowReportWindow->setIcon(imgReportIcon);
+
+    LayoutDefCategory = new QVBoxLayout(ui->FrameDefCategory);
+    ui->TabWidgetMain->setEnabled(false);
 }
 
 void MainWindow::setAdminMode()
 {
     if (m_isAdmin) {
-        ui->CmbBoxTableView->addItem(CMBBOX_ITEM_SALARY);
-        this->setWindowTitle(this->windowTitle() + " (режим администратора)");
+        if (ui->CmbBoxTableView->count() < 3) {
+            ui->CmbBoxTableView->addItem(CMBBOX_ITEM_SALARY);
+        }
+        ui->TabWidgetMain->setTabEnabled(3, true);
+        this->setWindowTitle("PhC-Report (режим администратора)");
     }
     else {
         ui->TabWidgetMain->setTabEnabled(3, false);
-        this->setWindowTitle(this->windowTitle() + " (режим пользователя)");
+        this->setWindowTitle("PhC-Report (режим пользователя)");
+        if (ui->CmbBoxTableView->count() > 2) {
+            if (ui->CmbBoxTableView->itemData(2).toString() == CMBBOX_ITEM_SALARY) {
+                ui->CmbBoxTableView->removeItem(2);
+            }
+        }
+    }
+}
+
+void MainWindow::setEnableWorkFields(bool isDatabaseOpen)
+{
+    if (isDatabaseOpen) {
+        ui->TabWidgetMain->setEnabled(true);
+    }
+    else {
+        ui->TabWidgetMain->setEnabled(false);
     }
 }
 
 void MainWindow::addFormBtnCategory(QString strCategory)
 {
-        FormBtnCategory *formBtnCtgry = new FormBtnCategory(m_FormBtnCategory.size(), strCategory, this);
-        m_FormBtnCategory.append(formBtnCtgry);
-        this->LayoutFormBtnCategory->addWidget(m_FormBtnCategory.at(m_FormBtnCategory.size() - 1));
-        ui->scrollAreaWidgetContents->setGeometry(QRect(0, 0,
-                                                        ui->ScrollAreaFormBtnCategory->width() - 10,
-                                                        m_FormBtnCategory.size()*
-                                                        m_FormBtnCategory.at(m_FormBtnCategory.size() - 1)->height()
-                                                        + m_dHeight));
-
-        FormCategory *formCtgry = new FormCategory(m_FormCategory.size(), strCategory,
-                                                   this);
-        m_FormCategory.append(formCtgry);
+    FormBtnCategory *formBtnCtgry = new FormBtnCategory(m_FormBtnCategory.size(), strCategory,
+                                                        ui->FrameBtnCategory);
+    m_FormBtnCategory.append(formBtnCtgry);
+    this->LayoutFormBtnCategory->addWidget(m_FormBtnCategory.at(m_FormBtnCategory.size() - 1));
+    FormCategory *formCtgry = new FormCategory(m_FormCategory.size(), strCategory,
+                                               this);
+    m_FormCategory.append(formCtgry);
 }
 
 void MainWindow::addFormBtnCategory(DefinedCategory defCategory)
@@ -243,11 +309,11 @@ void MainWindow::addFormBtnCategory(DefinedCategory defCategory)
                                                         m_FormBtnCategory.size()*
                                                         m_FormBtnCategory.at(m_FormBtnCategory.size() - 1)->height()
                                                         + m_dHeight));
-
         FormCategory *formCtgry = new FormCategory(m_FormCategory.size(),
                                                    defCategory,
-                                                   ui->TabDailyReport);
+                                                   ui->FrameDefCategory);
         m_FormCategory.append(formCtgry);
+        LayoutDefCategory->addWidget(formCtgry);
 }
 
 void MainWindow::removeFormBtnCategory(int formId)
@@ -272,9 +338,6 @@ void MainWindow::showFormCategory(int formId)
     foreach (FormCategory *item, m_FormCategory) {
         item->hide();
     }
-    m_FormCategory.at(formId)->setGeometry(490, 30,
-                                           m_FormCategory.at(formId)->width(),
-                                           m_FormCategory.at(formId)->height());
     m_FormCategory.at(formId)->show();
 }
 
@@ -858,10 +921,40 @@ void MainWindow::removeRecordInTableView()
     }
 }
 
+void MainWindow::readSettings()
+{
+    QString settingFilePath = m_settingWndw->getSettingFilePath();
+    if (!settingFilePath.isEmpty()) {
+        QSettings setting(settingFilePath, QSettings::IniFormat);
+        setting.beginGroup(GROUP_MAIN_WND_GEOMETRY);
+        m_wndInitWidth = setting.value(VAR_MAIN_WND_WIDTH, DEFAULT_MAIN_WND_WIDTH).toInt();
+        m_wndInitHeight = setting.value(VAR_MAIN_WND_HEIGHT, DEFAULT_MAIN_WND_HEIGHT).toInt();
+        setting.endGroup();
+    }
+}
+
+void MainWindow::writeSettings()
+{
+    QString settingFilePath = m_settingWndw->getSettingFilePath();
+    if (!settingFilePath.isEmpty()) {
+        QSettings setting(settingFilePath, QSettings::IniFormat);
+        setting.beginGroup(GROUP_MAIN_WND_GEOMETRY);
+        setting.setValue(VAR_MAIN_WND_WIDTH, this->width());
+        setting.setValue(VAR_MAIN_WND_HEIGHT, this->height());
+        setting.endGroup();
+    }
+}
+
+void MainWindow::closeApp()
+{
+    sqlManager.closeDataBase();
+    this->writeSettings();
+    QApplication::exit();
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     Q_UNUSED(event)
-    sqlManager.closeDataBase();
-    QApplication::exit();
+    this->closeApp();
 }
 

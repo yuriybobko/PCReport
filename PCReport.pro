@@ -43,6 +43,7 @@ FORMS += \
     adddefcategorydialog.ui \
     calendarwindow.ui \
     formbtncategory.ui \
+    formbtnshowcategory.ui \
     formcategory.ui \
     mainwindow.ui \
     reportwindow.ui \

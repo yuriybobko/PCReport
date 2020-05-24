@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>FormBtnCategory</class>
- <widget class="QWidget" name="FormBtnCategory">
+ <class>FormBtnShowCategory</class>
+ <widget class="QFrame" name="FormBtnShowCategory">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>171</width>
-    <height>104</height>
+    <width>221</width>
+    <height>99</height>
    </rect>
   </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-    <horstretch>0</horstretch>
+    <horstretch>6</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Frame</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -54,6 +54,22 @@
      </property>
      <property name="text">
       <string>Открыть &gt;&gt;</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="Line" name="line">
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>

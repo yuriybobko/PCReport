@@ -58,13 +58,13 @@ private:
     void drawTotalCashAndTaxTitle(QPainter *painter, QFont *font, int *pxbeg, int *pybeg, QRect rectFrame,
                             int *rectWidth, int *rectHeight);
     // Печать названий полей налогов
-    void drawTotalTaxTitleField(QPainter *painter, QFont *font, int *pxbeg, int *pybeg, QRect rectFrame,
+    void drawTotalTaxTitleField(QPainter *painter, int *pxbeg, int *pybeg, QRect rectFrame,
                                 int *rectWidth, int *rectHeight, QVector<QString> taxes);
     // Печать полей с итоговой суммой по каждому из налогов
-    void drawTotalTaxValueField(QPainter *painter, QFont *font, int *pxbeg, int *pybeg, QRect rectFrame,
+    void drawTotalTaxValueField(QPainter *painter, int *pxbeg, int *pybeg, QRect rectFrame,
                                 int *rectWidth, int *rectHeight, QVector<float> taxValue);
     // Печать поля с З/П
-    void drawTotalSalaryField(QPainter *painter, QFont *font, int *pxbeg, int *pybeg, QRect rectFrame,
+    void drawTotalSalaryField(QPainter *painter, int *pxbeg, int *pybeg, QRect rectFrame,
                                 int *rectWidth, int *rectHeight);
     // Печать поля комментариев
     void drawCommentField(QPainter *painter, QFont *font, int *pxbeg, int *pybeg, QRect rectFrame);

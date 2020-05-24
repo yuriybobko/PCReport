@@ -50,6 +50,10 @@ bool SqlManager::insertIntoOneTitleTable(const QString table, const QString titl
        QString queryString = "INSERT INTO " + table + " ( " +
                title + " )"
                 " VALUES ('" + value + "');";
+       if (!dataBase.isOpen()) {
+           emit signalToStatusBar("База данных не открыта");
+           return false;
+       }
        query.prepare(queryString);
        if (query.exec())
            return true;
@@ -59,6 +63,10 @@ bool SqlManager::insertIntoOneTitleTable(const QString table, const QString titl
 
 bool SqlManager::insertIntoDefCategoryTable(int categoryId, int taxId, DefinedCategory defCtgry)
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     DefCategoriesTable defCtgryTable;
     QSqlQuery query;
     QString queryString = "SELECT " + defCtgryTable.title + ", " + defCtgryTable.tax + " FROM "
@@ -89,6 +97,10 @@ bool SqlManager::insertIntoDefCategoryTable(int categoryId, int taxId, DefinedCa
 
 bool SqlManager::insertIntoDefCategoryRegisterTable(DefCategoryRegisterRecord defCtgryRegRecord)
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     DefCategoryRegisterTable defCtgryRegTable;
     QSqlQuery query;
     QString queryString = "INSERT INTO " + defCtgryRegTable.table + " (" +
@@ -114,6 +126,10 @@ bool SqlManager::insertIntoDefCategoryRegisterTable(DefCategoryRegisterRecord de
 
 bool SqlManager::insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord)
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     SalaryRegisterTable salaryRegTable;
     QSqlQuery query;
     QString queryString = "INSERT INTO " + salaryRegTable.table + " (" +
@@ -136,6 +152,10 @@ bool SqlManager::insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRec
 
 bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterRecord costsRegRecord)
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     CostsRegisterTable costsRegTable;
     QSqlQuery query;
     QString queryString = "INSERT INTO " + costsRegTable.table + " (" +
@@ -156,6 +176,10 @@ bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterRecord costsRegRecord
 
 bool SqlManager::updateRecordInSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord)
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     SalaryRegisterTable salaryRegTable;
     QString requiredDate = salaryRegRecord.date;
     int requiredStafferId = salaryRegRecord.stafferId;
@@ -202,6 +226,10 @@ float SqlManager::selectTotalSumInPeriodByCtgryTax(QString firstDate, QString se
 {
     DefCategoryRegisterTable defCtgryRegTable;
     float totalSum = 0;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return totalSum;
+    }
     QSqlQuery query;
     QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
             " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
@@ -227,6 +255,10 @@ float SqlManager::selectTotalSumInPeriodByCtgryTaxCash(QString firstDate, QStrin
 {
     DefCategoryRegisterTable defCtgryRegTable;
     float totalSum = 0;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return totalSum;
+    }
     QSqlQuery query;
     QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
             " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
@@ -253,6 +285,10 @@ float SqlManager::selectTotalSumInPeriodByTaxCash(QString firstDate, QString sec
 {
     DefCategoryRegisterTable defCtgryRegTable;
     float totalSum = 0;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return totalSum;
+    }
     QSqlQuery query;
     QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
             " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
@@ -277,6 +313,10 @@ float SqlManager::selectTotalSelfcoastInPeriod(QString firstDate, QString second
 {
     DefCategoryRegisterTable defCtgryRegTable;
     float totalSelfcoast = 0;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return totalSelfcoast;
+    }
     QSqlQuery query;
     QString queryString = "SELECT SUM(" + defCtgryRegTable.selfcoast +  ") FROM " + defCtgryRegTable.table +
             " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate "
@@ -301,6 +341,10 @@ float SqlManager::selectTotalSalaryInPeriod(QString firstDate, QString secondDat
 {
     DefCategoryRegisterTable defCtgryRegTable;
     float totalSalary = 0;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return totalSalary;
+    }
     QSqlQuery query;
     QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
             " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate;";
@@ -320,6 +364,10 @@ float SqlManager::selectTotalCostsInPeriod(QString firstDate, QString secondDate
 {
     CostsRegisterTable costsRegTable;
     float totalCosts = 0;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return totalCosts;
+    }
     QSqlQuery query;
     QString queryString = "SELECT SUM(" + costsRegTable.amount +  ") FROM " + costsRegTable.table +
             " WHERE " + costsRegTable.date + " BETWEEN :firstDate AND :secondDate;";
@@ -339,6 +387,10 @@ int SqlManager::selectMaxCategoryIdInPeriod(QString firstDate, QString secondDat
 {
     DefCategoryRegisterTable defCtgryRegTable;
     int maxCategoryId = 0;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return maxCategoryId;
+    }
     QSqlQuery query;
     QString queryString = "SELECT MAX(" + defCtgryRegTable.category +  ") FROM " + defCtgryRegTable.table +
             " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate;";
@@ -358,6 +410,10 @@ QVector<QString> SqlManager::selectTitlesFromTable(QString table, QString title)
 {
     QVector <QString> titleVector;
     QSqlQuery query;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return titleVector;
+    }
     if (query.exec("SELECT " + title + " FROM " + table)) {
         int ii = 0;
         while (query.next()) {
@@ -367,7 +423,7 @@ QVector<QString> SqlManager::selectTitlesFromTable(QString table, QString title)
 
     }
     else {
-        //emit signalToStatusBar("Не удалось прочитать");
+        emit signalToStatusBar("Не удалось прочитать");
         qDebug() << "Не удалось прочитать " + title + " из " + table;
     }
     return titleVector;
@@ -378,6 +434,10 @@ QVector<DefinedCategory> SqlManager::selectDefCategory()
     DefCategoriesView defCtgrsView;
     QVector<DefinedCategory> defCategoryVector;
     QSqlQuery query;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return defCategoryVector;
+    }
     if (query.exec("SELECT * FROM " + defCtgrsView.table)) {
         int ii = 0;
         while (query.next()) {
@@ -393,14 +453,6 @@ QVector<DefinedCategory> SqlManager::selectDefCategory()
             defCategoryVector.append(defCategory);
             ii++;
         }
-
-//        m_defCategoryTable->setTable(defCtgrsView.table);
-//        m_defCategoryTable->setEditStrategy(QSqlTableModel::OnManualSubmit);
-//        if (m_defCategoryTable->select())
-//            qDebug() << "model is selected";
-//        else
-//            qDebug() << "model is not selected";
-
     }
     else {
         qDebug() << "Не удалось прочитать " + defCtgrsView.table;
@@ -411,33 +463,42 @@ QVector<DefinedCategory> SqlManager::selectDefCategory()
 QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord()
 {
     QVector<DefinedCategoryRecord> defCategoryVector;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return defCategoryVector;
+    }
     DefCategoriesTable defCtgryTable;
-        QSqlQuery query;
-        QString queryString = "SELECT * FROM " + defCtgryTable.table +
-                ";";
-        if (query.prepare(queryString)) {
-            if (query.exec()) {
-                while (query.next()) {
-                    DefinedCategoryRecord defCategory;
-                    int kk = 0;
-                    defCategory.id = query.value(kk).toInt(); kk++;
-                    defCategory.categoryId = query.value(kk).toInt(); kk++;
-                    defCategory.taxId = query.value(kk).toInt(); kk++;
-                    defCategory.selfcoast = query.value(kk).toInt(); kk++;
-                    defCategory.koefSalary = query.value(kk).toFloat(); kk++;
-                    defCategory.koefProfit = query.value(kk).toFloat(); kk++;
-                    defCategory.isSelling = query.value(kk).toInt(); kk++;
-                    defCategory.isContracted = query.value(kk).toInt(); kk++;
-                    defCategoryVector.append(defCategory);
-                }
+    QSqlQuery query;
+    QString queryString = "SELECT * FROM " + defCtgryTable.table +
+            ";";
+    if (query.prepare(queryString)) {
+        if (query.exec()) {
+            while (query.next()) {
+                DefinedCategoryRecord defCategory;
+                int kk = 0;
+                defCategory.id = query.value(kk).toInt(); kk++;
+                defCategory.categoryId = query.value(kk).toInt(); kk++;
+                defCategory.taxId = query.value(kk).toInt(); kk++;
+                defCategory.selfcoast = query.value(kk).toInt(); kk++;
+                defCategory.koefSalary = query.value(kk).toFloat(); kk++;
+                defCategory.koefProfit = query.value(kk).toFloat(); kk++;
+                defCategory.isSelling = query.value(kk).toInt(); kk++;
+                defCategory.isContracted = query.value(kk).toInt(); kk++;
+                defCategoryVector.append(defCategory);
             }
         }
+    }
     return defCategoryVector;
 }
 
-QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord(QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector)
+QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord(QVector<DefCategoryRegisterRecord>
+                                                                   defCtgryRegRecordVector)
 {
     QVector<DefinedCategoryRecord> defCategoryVector;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return defCategoryVector;
+    }
     DefCategoriesTable defCtgryTable;
     for (int ii = 0; ii < defCtgryRegRecordVector.size(); ii++) {
         QSqlQuery query;
@@ -471,6 +532,10 @@ QVector<DefinedCategoryRecord> SqlManager::selectDefCategoryRecord(QVector<DefCa
 QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QString date, int stafferId)
 {
     QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return defCtgryRegRecordVector;
+    }
     DefCategoryRegisterTable defCtgryRegTable;
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + defCtgryRegTable.table +
@@ -507,6 +572,10 @@ QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QStrin
 QVector<DefCategoryRegisterRecord> SqlManager::selectDefCategoryRegRecord(QString firstDate, QString secondDate)
 {
     QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return defCtgryRegRecordVector;
+    }
     DefCategoryRegisterTable defCtgryRegTable;
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + defCtgryRegTable.table +
@@ -543,6 +612,10 @@ QVector<DefCategoryRegisterRecordView> SqlManager::selectDefCategoryRegRecordVie
 {
     DefCategoryRegisterView defCtgryRegView;
     QVector<DefCategoryRegisterRecordView> defCtgryRegRecViewVector;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return defCtgryRegRecViewVector;
+    }
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + defCtgryRegView.table +
             " WHERE " + defCtgryRegView.date + " BETWEEN :firstDate AND :secondDate;";
@@ -572,6 +645,10 @@ QStringList SqlManager::selectStafferFromDefCategoryRegRecord(QString firstDate,
 {
     DefCategoryRegisterView defCtgryRegView;
     QStringList stafferNames;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return stafferNames;
+    }
     QSqlQuery query;
     QString queryString = "SELECT DISTINCT " + defCtgryRegView.staffer + " FROM " + defCtgryRegView.table +
             " WHERE " + defCtgryRegView.date + " BETWEEN :firstDate AND :secondDate;";
@@ -591,6 +668,10 @@ QVector<SalaryRegisterRecordView> SqlManager::selectSalaryRegRecordView(QString 
 {
     SalaryRegisterView salaryRegView;
     QVector<SalaryRegisterRecordView> salaryRegRecViewVector;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return salaryRegRecViewVector;
+    }
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + salaryRegView.table +
             " WHERE " + salaryRegView.date + " BETWEEN :firstDate AND :secondDate;";
@@ -618,6 +699,10 @@ QVector<CostsRegisterRecordView> SqlManager::selectCostsRegRecordView(QString fi
 {
     CostsRegisterView costsRegView;
     QVector<CostsRegisterRecordView> costsRegRecViewVector;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return costsRegRecViewVector;
+    }
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + costsRegView.table +
             " WHERE " + costsRegView.date + " BETWEEN :firstDate AND :secondDate;";
@@ -642,7 +727,11 @@ QVector<CostsRegisterRecordView> SqlManager::selectCostsRegRecordView(QString fi
 
 SalaryRegisterRecord SqlManager::selectSalaryRecord(QString date, int stafferId)
 {
-    SalaryRegisterRecord salaryRegRecord;;
+    SalaryRegisterRecord salaryRegRecord;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return salaryRegRecord;
+    }
     SalaryRegisterTable salaryRegTable;
     QSqlQuery query;
     QString queryStrigng = "SELECT * FROM " + salaryRegTable.table +
@@ -650,6 +739,10 @@ SalaryRegisterRecord SqlManager::selectSalaryRecord(QString date, int stafferId)
                         " AND " + salaryRegTable.staffer + " = :requiredStafferId" +
                         ";";
 
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return salaryRegRecord;
+    }
     if (query.prepare(queryStrigng)) {
         query.bindValue(":requiredDate", date);
         query.bindValue(":requiredStafferId", stafferId);
@@ -674,10 +767,13 @@ SalaryRegisterRecord SqlManager::selectSalaryRecord(QString date, int stafferId)
 int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle)
 {
     int id = -1;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return id;
+    }
     QSqlQuery query;
     QString queryStrigng = "SELECT " + tableId + " FROM " + table +
             " WHERE " + tableTitle + " = :requiredTitle;";
-
     if (query.prepare(queryStrigng)) {
         query.bindValue(":requiredTitle", requiredTitle);
         if (query.exec()) {
@@ -695,6 +791,10 @@ int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableT
 bool SqlManager::deleteInDefCategoryRegisterTable(int requiredId)
 {
     bool result = false;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return result;
+    }
     DefCategoryRegisterTable defCtgryRegTable;
     QSqlQuery query;
     QString queryString = "DELETE FROM " + defCtgryRegTable.table +
@@ -716,6 +816,10 @@ bool SqlManager::deleteInDefCategoryRegisterTable(int requiredId)
 bool SqlManager::deleteInCostsRegisterTable(int requiredId)
 {
     bool result = false;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return result;
+    }
     CostsRegisterTable costsRegTable;
     QSqlQuery query;
     QString queryString = "DELETE FROM " + costsRegTable.table +
@@ -738,6 +842,10 @@ bool SqlManager::isSalaryRecordExist(SalaryRegisterRecord salaryRegRecord)
 {
     SalaryRegisterTable salaryRegTable;
     bool isRecordExist = false;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return isRecordExist;
+    }
     QSqlQuery query;
     QString queryStrigng = "SELECT " + salaryRegTable.date + ", " + salaryRegTable.staffer +
             " FROM " + salaryRegTable.table +
@@ -763,6 +871,10 @@ int SqlManager::isDefCategoryRecordExist(int categoryId, int taxId)
 {
     DefCategoriesTable defCategoriesTable;
     bool isRecordExist = false;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return isRecordExist;
+    }
     QSqlQuery query;
     QString queryStrigng = "SELECT " + defCategoriesTable.id +
             " FROM " + defCategoriesTable.table +
@@ -783,6 +895,14 @@ int SqlManager::isDefCategoryRecordExist(int categoryId, int taxId)
     return isRecordExist;
 }
 
+bool SqlManager::isDatabaseOpen()
+{
+    if (dataBase.isOpen())
+        return true;
+    else
+        return false;
+}
+
 bool SqlManager::openDataBase(QString databaseFile)
 {
     dataBase.setDatabaseName(databaseFile);
@@ -796,12 +916,12 @@ bool SqlManager::openDataBase(QString databaseFile)
                 qDebug() << "foreign_keys = off";
             return true;
         } else {
-            QMessageBox::warning(0, "Warning", "SqlManager:: DataBase is NOT opened!");
+            emit signalToStatusBar("База данных не открыта");
             return false;
         }
     }
     else {
-        QMessageBox::warning(0, "Warning", "Database is NOT valid!");
+        emit signalToStatusBar("База данных не валидна");
         return false;
     }
 }
@@ -811,7 +931,7 @@ bool SqlManager::createDataBase(QString databaseFile)
     if (this->openDataBase(databaseFile)) {
         return (this->createTables()) ? true : false;
     } else {
-        qDebug() << "Не удалось восстановить базу данных";
+        emit signalToStatusBar("База данных не удалось открыть");
         return false;
     }
     return false;
@@ -837,11 +957,11 @@ bool SqlManager::setDefCategoryModel()
     m_defCategoryTable->setTable(defCtgrsView.table);
     m_defCategoryTable->setEditStrategy(QSqlTableModel::OnManualSubmit);
     if (m_defCategoryTable->select()) {
-        qDebug() << "model is selected";
+        emit signalToStatusBar("Модель выбрана");
         result = true;
     }
     else {
-        qDebug() << "model is not selected";
+        emit signalToStatusBar("Модель не выбрана");
     }
     return result;
 }
@@ -885,6 +1005,10 @@ bool SqlManager::createTables()
 
 bool SqlManager::createOneTitleTable(QString table, QString id, QString title)
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     QSqlQuery query;
     if (query.exec("CREATE TABLE " + table + " (" +
                    id + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -898,6 +1022,10 @@ bool SqlManager::createOneTitleTable(QString table, QString id, QString title)
 
 bool SqlManager::createDefCategoriesTable()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     DefCategoriesTable defCtgryTable;
     CategoriesTable ctgryTable;
     TaxesTable taxesTable;
@@ -925,6 +1053,10 @@ bool SqlManager::createDefCategoriesTable()
 
 bool SqlManager::createDefCategoriesView()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     DefCategoriesView defCtgryView;
     DefCategoriesTable defCtgryTable;
     CategoriesTable ctgryTable;
@@ -955,6 +1087,10 @@ bool SqlManager::createDefCategoriesView()
 
 bool SqlManager::createDefCategoryRegisterTable()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     DefCategoryRegisterTable defCtgryRegTable;
     StaffersTable staffersTable;
     CategoriesTable ctgryTable;
@@ -988,6 +1124,10 @@ bool SqlManager::createDefCategoryRegisterTable()
 
 bool SqlManager::createDefCategoryRegisterView()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     DefCategoryRegisterView defCtgryRegView;
     DefCategoryRegisterTable defCtgryRegTable;
     StaffersTable staffersTable;
@@ -1027,6 +1167,10 @@ bool SqlManager::createDefCategoryRegisterView()
 
 bool SqlManager::createCostsRegisterTable()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     CostsRegisterTable costsRegTable;
     CashTable cashTable;
     QSqlQuery query;
@@ -1048,6 +1192,10 @@ bool SqlManager::createCostsRegisterTable()
 
 bool SqlManager::createCostsRegisterView()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     CostsRegisterView costsRegView;
     CostsRegisterTable costsRegTable;
     CashTable cashTable;
@@ -1072,6 +1220,10 @@ bool SqlManager::createCostsRegisterView()
 
 bool SqlManager::createSalaryRegisterTable()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     SalaryRegisterTable salaryRegTable;
     StaffersTable staffersTable;
     QSqlQuery query;
@@ -1094,6 +1246,10 @@ bool SqlManager::createSalaryRegisterTable()
 
 bool SqlManager::createSalaryRegisterView()
 {
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
     SalaryRegisterView salaryRegView;
     SalaryRegisterTable salaryRegTable;
     StaffersTable staffersTable;

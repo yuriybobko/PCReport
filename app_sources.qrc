@@ -10,5 +10,6 @@
         <file>app_imgs/report_editor.png</file>
         <file>app_imgs/add.png</file>
         <file>app_imgs/delete.png</file>
+        <file>app_imgs/Logo_95.jpg</file>
     </qresource>
 </RCC>

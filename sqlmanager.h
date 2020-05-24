@@ -111,6 +111,8 @@ public slots:
     // Проверка существования записи в таблице сотрудников, категорий и налогов
     int isDefCategoryRecordExist(int categoryId, int taxId);
 
+    bool isDatabaseOpen();
+
 
 private:
     bool openDataBase(QString databaseFile);
