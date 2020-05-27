@@ -247,7 +247,7 @@
                     <string>Вычислить заработную плату</string>
                    </property>
                    <property name="statusTip">
-                    <string>Вычислить заработную плату</string>
+                    <string/>
                    </property>
                    <property name="text">
                     <string>Вычислить</string>
@@ -260,7 +260,7 @@
                     <string>Сделать запись в базе данных на текущую дату</string>
                    </property>
                    <property name="statusTip">
-                    <string>Сделать запись в базе данных на текущую дату</string>
+                    <string/>
                    </property>
                    <property name="text">
                     <string>Записать</string>

@@ -285,7 +285,7 @@
      <item>
       <widget class="QPushButton" name="BtnPrintReport">
        <property name="text">
-        <string>Печать</string>
+        <string>Сохранить</string>
        </property>
       </widget>
      </item>

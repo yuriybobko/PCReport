@@ -218,6 +218,8 @@ float SqlManager::calcSalary(QVector<DefCategoryRegisterRecord> defCtgryRegRecor
         salary += adtnlSum;
     }
     salary += oldSalaryRegRecord.basicWage*(1 - oldSalaryRegRecord.koefBasicWage);
+    if (salary < oldSalaryRegRecord.basicWage)
+        salary = oldSalaryRegRecord.basicWage;
     return salary;
 }
 
@@ -618,7 +620,9 @@ QVector<DefCategoryRegisterRecordView> SqlManager::selectDefCategoryRegRecordVie
     }
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + defCtgryRegView.table +
-            " WHERE " + defCtgryRegView.date + " BETWEEN :firstDate AND :secondDate;";
+            " WHERE " + defCtgryRegView.date + " BETWEEN :firstDate AND :secondDate ORDER BY " +
+            defCtgryRegView.date +
+            ";";
     if (query.prepare(queryString)) {
         query.bindValue(":firstDate", firstDate);
         query.bindValue(":secondDate", secondDate);
@@ -674,7 +678,9 @@ QVector<SalaryRegisterRecordView> SqlManager::selectSalaryRegRecordView(QString 
     }
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + salaryRegView.table +
-            " WHERE " + salaryRegView.date + " BETWEEN :firstDate AND :secondDate;";
+            " WHERE " + salaryRegView.date + " BETWEEN :firstDate AND :secondDate ORDER BY " +
+            salaryRegView.date +
+            ";";
     if (query.prepare(queryString)) {
         query.bindValue(":firstDate", firstDate);
         query.bindValue(":secondDate", secondDate);
@@ -705,7 +711,9 @@ QVector<CostsRegisterRecordView> SqlManager::selectCostsRegRecordView(QString fi
     }
     QSqlQuery query;
     QString queryString = "SELECT * FROM " + costsRegView.table +
-            " WHERE " + costsRegView.date + " BETWEEN :firstDate AND :secondDate;";
+            " WHERE " + costsRegView.date + " BETWEEN :firstDate AND :secondDate ORDER BY " +
+            costsRegView.date +
+            ";";
     if (query.prepare(queryString)) {
         query.bindValue(":firstDate", firstDate);
         query.bindValue(":secondDate", secondDate);

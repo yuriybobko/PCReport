@@ -71,6 +71,9 @@ SettingWindow::SettingWindow(QWidget *parent) :
     connect(ui->BtnOpenDataBase, &QPushButton::clicked, [this]() {
             this->openDataBase(ui->EditDataBaseDir->text());
     });
+    connect(ui->BtnCreateDataBase, &QPushButton::clicked, [this]() {
+            this->saveDataBase();
+    });
 
     // Настройки категорий и сотрудников
     connect(ui->BtnAddStaffer, SIGNAL(clicked()), this, SLOT(addStaffer()));
@@ -82,13 +85,9 @@ SettingWindow::SettingWindow(QWidget *parent) :
     connect(ui->BtnAddDefCategory, SIGNAL(clicked()), this, SLOT(addDefCategory()));
     connect(ui->BtnRemoveDefCategory, SIGNAL(clicked()), this, SLOT(removeDefCategory()));
 
-    connect(ui->BtnSelectUserMode, &QPushButton::clicked, [this, parent]() {
+    connect(ui->BtnSelectUserMode, &QPushButton::clicked, [parent]() {
         MainWindow *parentWnd = qobject_cast<MainWindow*> (parent);
         parentWnd->openUserModeDialog();
-        if (parentWnd->isAdminMode())
-            ui->LblUserMode->setText("Режим администратора");
-        else
-            ui->LblUserMode->setText("Режим пользователя");
     });
 
     ui->TableViewDefCategory->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -182,6 +181,22 @@ QString SettingWindow::getSettingFilePath()
     return m_settingFilePath;
 }
 
+void SettingWindow::setAdminMode(bool isAdmin)
+{
+    if (isAdmin) {
+        ui->BtnCreateDataBase->setEnabled(true);
+        ui->BtnFindDataBaseDir->setEnabled(true);
+        ui->LblUserMode->setText("Режим администратора");
+        ui->EditDataBaseDir->setReadOnly(false);
+    }
+    else {
+        ui->BtnCreateDataBase->setEnabled(false);
+        ui->BtnFindDataBaseDir->setEnabled(false);
+        ui->LblUserMode->setText("Режим пользователя");
+        ui->EditDataBaseDir->setReadOnly(true);
+    }
+}
+
 void SettingWindow::openDataBase(const QString dbFile)
 {
     this->connectToDataBase(dbFile);
@@ -189,6 +204,19 @@ void SettingWindow::openDataBase(const QString dbFile)
         emit signalToSetEnableWorkFields(true);
     }
     this->editWidgets();
+}
+
+void SettingWindow::saveDataBase()
+{
+    QString dbFile = QFileDialog::getSaveFileName(
+                this,
+                tr("Создать базу данных"),
+                QDir::currentPath(),
+                "*.db" );
+    if (dbFile.isEmpty())
+        return;
+    ui->EditDataBaseDir->setText(dbFile);
+    this->openDataBase(dbFile);
 }
 
 void SettingWindow::connectToDataBase(QString dbFile)
@@ -568,7 +596,6 @@ void SettingWindow::removeDefCategory()
                                     0,
                                     1);
     if (!btnNo) {
-
         for (int ii = 0; ii < selectedRows.size(); ii++){
             int selectedRow = selectedRows[ii].row();
             QModelIndex index = ui->TableViewDefCategory->model()->index(selectedRow, 0);
@@ -589,6 +616,7 @@ void SettingWindow::removeDefCategory()
                                      + taxTitle +  " не может быть удалена");
             }
         }
+        ui->TableViewDefCategory->repaint();
     }
 }
 
@@ -675,7 +703,6 @@ void SettingWindow::addRowInTableDefCategory(DefinedCategory defCtgry)
 void SettingWindow::removeRowInTableDefCategory(int selectedRow)
 {
     m_defCategoryModel->removeRow(selectedRow);
-    ui->TableViewDefCategory->repaint();
 }
 
 void SettingWindow::editTableDefCategory()
@@ -705,7 +732,7 @@ void SettingWindow::editTableDefCategory()
 
 void SettingWindow::reject()
 {
-
+    this->setSettings();
 }
 
 

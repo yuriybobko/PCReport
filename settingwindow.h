@@ -67,14 +67,13 @@ public slots:
     void cancelSettings();
     QString getSettingFilePath();
 
+    void setAdminMode(bool isAdmin);
+
     // Методы для настроек значений из БД
     void openDataBase(const QString dbFile);
+    void saveDataBase();
     void connectToDataBase(const QString dbFile);
     void editWidgets();
-
-//    void readDBStaffer(SqlManager *sqlmngr);
-//    void readDBCategory(SqlManager *sqlmngr);
-//    void readDBTaxes(SqlManager *sqlmngr);
 
     // Проверка всех полей
     bool isEditChanged();
@@ -84,7 +83,6 @@ public slots:
     bool isDefCategoryChanged();
     bool isSettingChanged();
 
-    //// TODO: исправит методы удаления полей, с учетом проверки на существование вбазе данных
     // Изменение категорий и сотрудников
     void addCategory();
     void removeCategory();
@@ -113,11 +111,8 @@ public slots:
     void removeRowInTableDefCategory(int selectedRow); // Удалить строку из таблицы заданных категорий
     void editTableDefCategory(); // Полностью редактировать таблицу заданных категорий
 
+
 signals:
-//    void signalToAddStrItem(QString strItem);
-
-//    void signalToRemoveStrItem(int itemId);
-
     void signalToRemoveFormBtnCategory(int formId);
     void signalToAddFormBtnCategory(QString strCategory);
     void signalToEditFormBtnCategory(QVector <QString> categoryVector);

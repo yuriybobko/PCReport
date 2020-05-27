@@ -24,6 +24,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(m_settingWndw, SIGNAL(signalToSetEnableWorkFields(bool)),
             this, SLOT(setEnableWorkFields(bool)));
 
+    connect(this, SIGNAL(signalToSettingWindowAdminMode(bool)),
+            m_settingWndw, SLOT(setAdminMode(bool)));
+
+
     connect(ui->BtnSettings, SIGNAL(clicked()), this, SLOT(showSettingWindow()));
     connect(ui->BtnCalendar, &QPushButton::clicked, [this]() {
         QString selectedString = this->getDateFromCalendar();
@@ -84,6 +88,8 @@ MainWindow::MainWindow(QWidget *parent)
     frameRect.moveCenter(desktop.availableGeometry().center());
     this->move(frameRect.topLeft());
     this->setChildWidgets();
+
+    this->m_isAdmin = false;
 }
 
 MainWindow::~MainWindow()
@@ -116,7 +122,7 @@ MainWindow::~MainWindow()
 void MainWindow::openUserModeDialog()
 {
     bool btnOkCmbBox = false;
-    bool isAdmin = false;
+    bool isAdmin = this->m_isAdmin;
     QStringList userType;
     userType.append("Пользователь");
     userType.append("Администратор");
@@ -146,8 +152,8 @@ void MainWindow::openUserModeDialog()
         else {
             isAdmin = false;
         }
+        this->setAdminStatus(isAdmin);
     }
-    this->setAdminStatus(isAdmin);
 }
 
 void MainWindow::setAdminStatus(bool isAdmin)
@@ -253,6 +259,7 @@ void MainWindow::setChildWidgets()
 
     LayoutDefCategory = new QVBoxLayout(ui->FrameDefCategory);
     ui->TabWidgetMain->setEnabled(false);
+    ui->BtnShowReportWindow->setEnabled(false);
 }
 
 void MainWindow::setAdminMode()
@@ -268,20 +275,24 @@ void MainWindow::setAdminMode()
         ui->TabWidgetMain->setTabEnabled(3, false);
         this->setWindowTitle("PhC-Report (режим пользователя)");
         if (ui->CmbBoxTableView->count() > 2) {
-            if (ui->CmbBoxTableView->itemData(2).toString() == CMBBOX_ITEM_SALARY) {
+            if (ui->CmbBoxTableView->itemText(2) == CMBBOX_ITEM_SALARY) {
                 ui->CmbBoxTableView->removeItem(2);
             }
         }
     }
+    bool isAdmin = m_isAdmin;
+    emit signalToSettingWindowAdminMode(isAdmin);
 }
 
 void MainWindow::setEnableWorkFields(bool isDatabaseOpen)
 {
     if (isDatabaseOpen) {
         ui->TabWidgetMain->setEnabled(true);
+        ui->BtnShowReportWindow->setEnabled(true);
     }
     else {
         ui->TabWidgetMain->setEnabled(false);
+        ui->BtnShowReportWindow->setEnabled(false);
     }
 }
 
@@ -490,108 +501,96 @@ void MainWindow::clearCostsTabEdits()
 
 void MainWindow::writeDefCategoryRecordToDataBase()
 {
-    bool isAnyRecordExist = false;
-    bool isRecordExist = false;
-    this->showStatusBar("Идет запись в реестр категорий");
-    StaffersTable staffersTable;
-    CategoriesTable categoriesTable;
-    TaxesTable taxesTable;
-    CashTable cashTable;
-    DefCategoryRegisterRecord defCtgryRegRecord;
-    defCtgryRegRecord.date = ui->LblSelectedDate->text();
-    QString stafferName = ui->CmbBoxStaffer->currentText();
-    defCtgryRegRecord.stafferId = sqlManager.selectIdFromTable(staffersTable.table, staffersTable.id,
-                                                               staffersTable.name, stafferName);
-    for (int ii = 0; ii < m_FormCategory.size(); ii++) {
-        for (int kk = 1; kk < 3; kk++) {
-            isRecordExist = false;
-            QString ctgryTitle = m_FormCategory.at(ii)->getCategoryTitle();
-            defCtgryRegRecord.categoryId = sqlManager.selectIdFromTable(categoriesTable.table, categoriesTable.id,
-                                                                        categoriesTable.title, ctgryTitle);
-            QString taxTitle = m_FormCategory.at(ii)->getTaxTitle();
-            defCtgryRegRecord.taxId = sqlManager.selectIdFromTable(taxesTable.table, taxesTable.id,
-                                                                       taxesTable.title, taxTitle);
-            if (kk == 1) {
-                QString cashTitle = CASH_STRING;
-                defCtgryRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
-                                                                           cashTable.title, cashTitle);
-                defCtgryRegRecord.amount = m_FormCategory.at(ii)->getCashMoney();
-                if (m_FormCategory.at(ii)->getCashMoney() > 0) {
-                    defCtgryRegRecord.selfcoast = m_FormCategory.at(ii)->getSelfcoast();
-                    isRecordExist = true;
-                    isAnyRecordExist = true;
-                }
-            }
-            else {
-                QString cashTitle = NONCASH_STRING;
-                defCtgryRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
-                                                                           cashTable.title, cashTitle);
-                defCtgryRegRecord.amount = m_FormCategory.at(ii)->getNonCashMoney();
-                if (m_FormCategory.at(ii)->getNonCashMoney() > 0) {
+    int btnNo = QMessageBox::warning(0,
+                                    "Внимание",
+                                    "Выполнить запись в базу данных?",
+                                    "Да",
+                                    "Нет",
+                                    QString(),
+                                    0,
+                                    1);
+    if (!btnNo) {
+        bool isAnyRecordExist = false;
+        bool isRecordExist = false;
+        this->showStatusBar("Идет запись в реестр категорий");
+        StaffersTable staffersTable;
+        CategoriesTable categoriesTable;
+        TaxesTable taxesTable;
+        CashTable cashTable;
+        DefCategoryRegisterRecord defCtgryRegRecord;
+        defCtgryRegRecord.date = ui->LblSelectedDate->text();
+        QString stafferName = ui->CmbBoxStaffer->currentText();
+        defCtgryRegRecord.stafferId = sqlManager.selectIdFromTable(staffersTable.table, staffersTable.id,
+                                                                   staffersTable.name, stafferName);
+        for (int ii = 0; ii < m_FormCategory.size(); ii++) {
+            for (int kk = 1; kk < 3; kk++) {
+                isRecordExist = false;
+                QString ctgryTitle = m_FormCategory.at(ii)->getCategoryTitle();
+                defCtgryRegRecord.categoryId = sqlManager.selectIdFromTable(categoriesTable.table, categoriesTable.id,
+                                                                            categoriesTable.title, ctgryTitle);
+                QString taxTitle = m_FormCategory.at(ii)->getTaxTitle();
+                defCtgryRegRecord.taxId = sqlManager.selectIdFromTable(taxesTable.table, taxesTable.id,
+                                                                           taxesTable.title, taxTitle);
+                if (kk == 1) {
+                    QString cashTitle = CASH_STRING;
+                    defCtgryRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
+                                                                               cashTable.title, cashTitle);
+                    defCtgryRegRecord.amount = m_FormCategory.at(ii)->getCashMoney();
                     if (m_FormCategory.at(ii)->getCashMoney() > 0) {
-                        defCtgryRegRecord.selfcoast = 0;
-                    }
-                    else
                         defCtgryRegRecord.selfcoast = m_FormCategory.at(ii)->getSelfcoast();
-                    isRecordExist = true;
-                    isAnyRecordExist = true;
-                }
-            }
-            if (isRecordExist) {
-                if (sqlManager.insertIntoDefCategoryRegisterTable(defCtgryRegRecord)) {
+                        isRecordExist = true;
+                        isAnyRecordExist = true;
+                    }
                 }
                 else {
-                    this->showStatusBar("Не удается выполнить запись в реестр категорий");
-                    return;
+                    QString cashTitle = NONCASH_STRING;
+                    defCtgryRegRecord.cashId = sqlManager.selectIdFromTable(cashTable.table, cashTable.id,
+                                                                               cashTable.title, cashTitle);
+                    defCtgryRegRecord.amount = m_FormCategory.at(ii)->getNonCashMoney();
+                    if (m_FormCategory.at(ii)->getNonCashMoney() > 0) {
+                        if (m_FormCategory.at(ii)->getCashMoney() > 0) {
+                            defCtgryRegRecord.selfcoast = 0;
+                        }
+                        else
+                            defCtgryRegRecord.selfcoast = m_FormCategory.at(ii)->getSelfcoast();
+                        isRecordExist = true;
+                        isAnyRecordExist = true;
+                    }
+                }
+                if (isRecordExist) {
+                    if (sqlManager.insertIntoDefCategoryRegisterTable(defCtgryRegRecord)) {
+                    }
+                    else {
+                        this->showStatusBar("Не удается выполнить запись в реестр категорий");
+                        return;
+                    }
                 }
             }
         }
-    }
-//    if (isAnyRecordExist) {
-//        this->writeSalaryRecordToDataBase();
-//        this->showStatusBar("Запись в реестр категорий выполнена");
-//        this->clearDailyReportTabFinanceEdits();
-//        for (int ii = 0; ii < m_FormCategory.size(); ii++) {
-//            m_FormCategory.at(ii)->clearEdits();
-//        }
-//    }
-//    else {
-//        int btnNo = QMessageBox::warning(0,
-//                                        "Внимание! Все поля пусты",
-//                                        "Выполнить запись только зарплаты в базу данных?",
-//                                        "Да",
-//                                        "Нет",
-//                                        QString(),
-//                                        0,
-//                                        1);
-//        if (!btnNo) {
-//            this->writeSalaryRecordToDataBase();
-//            this->showStatusBar("Запись в реестр категорий выполнена");
-//        }
-//        else {
-//            this->showStatusBar("Все поля пусты");
-//        }
-//    }
-    if (!isAnyRecordExist) {
-        int btnNo = QMessageBox::warning(0,
-                                        "Внимание! Все поля пусты",
-                                        "Выполнить запись только зарплаты в базу данных?",
-                                        "Да",
-                                        "Нет",
-                                        QString(),
-                                        0,
-                                        1);
-        if (btnNo) {
-            this->showStatusBar("Все поля пусты");
-            return;
+        if (!isAnyRecordExist) {
+            int btnNo = QMessageBox::warning(0,
+                                            "Внимание! Все поля пусты",
+                                            "Выполнить запись только зарплаты в базу данных?",
+                                            "Да",
+                                            "Нет",
+                                            QString(),
+                                            0,
+                                            1);
+            if (btnNo) {
+                this->showStatusBar("Все поля пусты");
+                return;
+            }
+        }
+        this->writeSalaryRecordToDataBase();
+        this->showStatusBar("Запись в реестр категорий выполнена");
+        this->clearDailyReportTabFinanceEdits();
+        for (int ii = 0; ii < m_FormCategory.size(); ii++) {
+            m_FormCategory.at(ii)->clearEdits();
         }
     }
-    this->writeSalaryRecordToDataBase();
-    this->showStatusBar("Запись в реестр категорий выполнена");
-    this->clearDailyReportTabFinanceEdits();
-    for (int ii = 0; ii < m_FormCategory.size(); ii++) {
-        m_FormCategory.at(ii)->clearEdits();
-    }
+    else
+        return;
+
 }
 
 void MainWindow::writeSalaryRecordToDataBase()
@@ -660,7 +659,7 @@ void MainWindow::showProfitInEdit()
     totalCosts = sqlManager.selectTotalCostsInPeriod(firstDate, secondDate);
     float totalProfit = netSum - (totalSalary + totalCosts);
     ui->TextEditProfit->setText("Прибыль за период с " + firstDate + " по " + secondDate + "\n"
-                                                                                           "составила " + QString::number(totalProfit) + " руб.");
+                                "составила " + QString::number(totalProfit) + " руб.");
 }
 
 void MainWindow::editTableView()
@@ -680,21 +679,6 @@ void MainWindow::editTableView()
         m_registerType = RegisterType::Register_Costs;
         ui->BtnDeleteRecord->setEnabled(true);
     }
-//    if (ui->CmbBoxTableView->currentIndex() == 0) {
-//        this->setDefCategoryRegisterInTableView();
-//        m_registerType = RegisterType::Register_defCategory;
-//        ui->BtnDeleteRecord->setEnabled(true);
-//    }
-//    if (ui->CmbBoxTableView->currentIndex() == 1) {
-//        this->setSalaryRegisterInTableView();
-//        m_registerType = RegisterType::Register_Salary;
-//        ui->BtnDeleteRecord->setEnabled(false);
-//    }
-//    if (ui->CmbBoxTableView->currentIndex() == 2) {
-//        this->setCostsRegisterInTableView();
-//        m_registerType = RegisterType::Register_Costs;
-//        ui->BtnDeleteRecord->setEnabled(true);
-//    }
 }
 
 void MainWindow::setDefCategoryRegisterInTableView()
@@ -769,7 +753,8 @@ void MainWindow::setCostsRegisterInTableView()
 {
     QString firstDate = ui->LblTabViewFromDate->text();
     QString secondDate = ui->LblTabViewToDate->text();
-    QVector <CostsRegisterRecordView> costsRegRecordView = sqlManager.selectCostsRegRecordView(firstDate, secondDate);
+    QVector <CostsRegisterRecordView> costsRegRecordView = sqlManager.selectCostsRegRecordView(firstDate,
+                                                                                               secondDate);
 
     ui->TableView->clearSpans();
 

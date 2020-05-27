@@ -33,6 +33,9 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+signals:
+    void signalToSettingWindowAdminMode(bool isAdmin);
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();

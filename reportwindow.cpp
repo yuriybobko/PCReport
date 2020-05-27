@@ -220,6 +220,7 @@ void ReportWindow::drawBanner(QPainter *painter, QFont *font, int *pxbeg, int *p
     QRect rectBannerTxt(rectImgGS.width(), rectHeaderTxt.height(),
                         (rectfull.width() - rectImgGS.width()), rectImgGS.height() - rectHeaderTxt.height());
     // Прямоугольник для даты и имен сотрудников
+    font->setPointSize(12);
     font->setBold(false);
     painter->setFont(*font);
     QString dateStr = "Дата: ";
@@ -232,10 +233,12 @@ void ReportWindow::drawBanner(QPainter *painter, QFont *font, int *pxbeg, int *p
     QStringList stafferNames = sqlManager.selectStafferFromDefCategoryRegRecord(selectedDate, selectedDate);
     for (auto &ii: stafferNames) {
         txt += ii;
-        if (stafferNames.size() > 1)
-            txt += ",\n";
+        if (ii != stafferNames.last())
+            txt += ", ";
         else
             txt += "\n";
+//        if (stafferNames.size() > 1)
+//            txt += ", ";
     }
     txt += "Отчет №: ";
     txt += ui->EditReportNum->text();
