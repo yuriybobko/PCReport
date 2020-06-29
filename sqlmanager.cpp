@@ -918,10 +918,7 @@ bool SqlManager::openDataBase(QString databaseFile)
         if(dataBase.open()) {
             m_defCategoryTable = new QSqlTableModel(this, dataBase);
             QSqlQuery query;
-            if (query.exec("PRAGMA foreign_keys = on;"))
-                qDebug() << "foreign_keys = on";
-            else
-                qDebug() << "foreign_keys = off";
+            query.exec("PRAGMA foreign_keys = on;");
             return true;
         } else {
             emit signalToStatusBar("База данных не открыта");

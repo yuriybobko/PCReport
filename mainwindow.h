@@ -44,6 +44,8 @@ public:
     void setAdminStatus(bool isAdmin);
     bool isAdminMode();
 
+    void checkDBAutoOpening();
+
 private slots:
     void setChildWidgets();
 

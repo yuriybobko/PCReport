@@ -19,6 +19,7 @@ SettingWindow::SettingWindow(QWidget *parent) :
     ui->EditBasicWage->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
     ui->EditBasicWageKoefSalary->setText(QString::number(koefBasicWage));
     ui->EditBasicWageKoefSalary->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
+    ui->ChkBoxDBAutoOpening->setChecked(isDBAutoOpening);
 
 
     QString imgDeleteIconPath = PICT_DELETE;
@@ -106,6 +107,7 @@ void SettingWindow::readSettings()
     setting.beginGroup(GROUP_DATABASE_DIRECTORY);
     dataBaseFile = setting.value(VAR_DATABASE_FILE,
                                  QApplication::applicationDirPath() + DEFAULT_DATABASE_FILE).toString();
+    isDBAutoOpening = setting.value(VAR_DATABASE_AUTOOPENING, DEFAULT_DATABASE_AUTOOPENING).toBool();
     setting.endGroup();
     setting.beginGroup(GROUP_SALARY_PARAMETERS);
     basicWage = setting.value(VAR_BASIC_WAGE, DEFAULT_BASIC_WAGE).toFloat();
@@ -119,6 +121,7 @@ void SettingWindow::writeSettings()
     setting.clear();
     setting.beginGroup(GROUP_DATABASE_DIRECTORY);
     setting.setValue(VAR_DATABASE_FILE, dataBaseFile);
+    setting.setValue(VAR_DATABASE_AUTOOPENING, isDBAutoOpening);
     setting.endGroup();
     setting.beginGroup(GROUP_SALARY_PARAMETERS);
     setting.setValue(VAR_BASIC_WAGE, basicWage);
@@ -142,6 +145,7 @@ void SettingWindow::setSettings()
         if (!btnNo) {
             dataBaseFile = ui->EditDataBaseDir->text();
             basicWage = ui->EditBasicWage->text().toFloat();
+            isDBAutoOpening = ui->ChkBoxDBAutoOpening->isChecked();
             this->writeSettings();
             this->setStaffer();
             this->setCategory();
@@ -173,6 +177,7 @@ void SettingWindow::cancelSettings()
         ui->CmbBoxTax->addItem(m_tax.at(ii));
     }
     this->editTableDefCategory();
+    ui->ChkBoxDBAutoOpening->setChecked(isDBAutoOpening);
     this->hide();
 }
 
@@ -254,6 +259,15 @@ void SettingWindow::editWidgets()
 bool SettingWindow::isEditChanged()
 {
     if (ui->EditDataBaseDir->text() != dataBaseFile) {
+        return true;
+    }
+    else
+        return false;
+}
+
+bool SettingWindow::isAutoOpeningChanged()
+{
+    if (ui->ChkBoxDBAutoOpening->isChecked() != isDBAutoOpening) {
         return true;
     }
     else
@@ -352,6 +366,9 @@ bool SettingWindow::isSettingChanged()
 {
     bool anyChanges = false;
     if (this->isEditChanged()) {
+        anyChanges = true;
+    }
+    if (this->isAutoOpeningChanged()) {
         anyChanges = true;
     }
     if (this->isStafferChanged()) {
