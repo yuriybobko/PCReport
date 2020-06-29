@@ -263,7 +263,7 @@
                     <string/>
                    </property>
                    <property name="text">
-                    <string>Записать</string>
+                    <string>Сохранить</string>
                    </property>
                   </widget>
                  </item>

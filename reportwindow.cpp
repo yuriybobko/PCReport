@@ -176,6 +176,7 @@ void ReportWindow::printReport()
     // Печать поля Всего
     QRect rectFrame(pxbeg, pybeg, rectfull.width(), 200);
     this->drawTotalCashAndTaxTitle(painter, &font, &pxbeg, &pybeg, rectFrame, &rectWidth, &rectHeight);
+    pybeg += dpybeg;
     // ---------------------------------------------------------------------
     // печать поля З/П
     this->drawTotalSalaryField(painter, &pxbeg, &pybeg, rectFrame, &rectWidth, &rectHeight);
@@ -256,20 +257,29 @@ void ReportWindow::drawDefCategory(QPainter *painter, QFont *font, int *pxbeg, i
     // Прямоугольник с названием
     QString txt = reportDefCtgryRec.category + "\n";
     txt += reportDefCtgryRec.tax;
-    QRect rectDefCategoryTitle(*pxbeg, *pybeg, *rectWidth, (font->pointSize() + 9)*3);
+    QRect rectDefCategoryTitle(*pxbeg, *pybeg, *rectWidth, (font->pointSize() + 9)*4);
     painter->drawRect(rectDefCategoryTitle);
     font->setItalic(true);
     painter->setFont(*font);
     painter->drawText(rectDefCategoryTitle, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap, txt);
 
-    for (int ii = 0; ii < 3; ii++) {
+    int rectHeight = 0;
+    int curRowCount = 0;
+    if (reportDefCtgryRec.selfcoast != 0) {
+        curRowCount = 4;
+    }
+    else {
+        curRowCount = 3;
+    }
+    rectHeight = rectDefCategoryTitle.height()/curRowCount;
+    for (int ii = 0; ii < curRowCount; ii++) {
         QRect rectCashTitle(*pxbeg + rectDefCategoryTitle.width(), *pybeg, (font->pointSize() + 9)*5,
-                            rectDefCategoryTitle.height()/3);
+                            rectHeight);
         painter->drawRect(rectCashTitle);
         QRect rectCashValue(*pxbeg + rectDefCategoryTitle.width() + rectCashTitle.width(),
                             *pybeg,
                             rectFrame.width() - (rectCashTitle.x() + rectCashTitle.width()),
-                            rectDefCategoryTitle.height()/3);
+                            rectHeight);
         painter->drawRect(rectCashValue);
         switch (ii) {
         case 0:
@@ -281,6 +291,11 @@ void ReportWindow::drawDefCategory(QPainter *painter, QFont *font, int *pxbeg, i
         painter->drawText(rectCashValue, "    " + QString::number(reportDefCtgryRec.nonCash));
         break;
         case 2:
+        painter->drawText(rectCashTitle, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap, TOTAL_CASH_STRING);
+        painter->drawText(rectCashValue, "    " + QString::number(reportDefCtgryRec.cash +
+                                                                  reportDefCtgryRec.nonCash));
+        break;
+        case 3:
         painter->drawText(rectCashTitle, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap, SELFCOAST_STRING);
         painter->drawText(rectCashValue, "    " + QString::number(reportDefCtgryRec.selfcoast));
         break;
@@ -301,18 +316,33 @@ void ReportWindow::drawTotalCashAndTaxTitle(QPainter *painter, QFont *font, int 
     QVector <QString> taxesList = sqlManager.selectTitlesFromTable(taxTable.table, taxTable.title);
     QVector <QString> cashList = sqlManager.selectTitlesFromTable(cashTable.table, cashTable.title);
     QString selectedDate = ui->LblSelectedDate->text();
-    for (int ii = -1; ii < cashList.size(); ii++) {
+    QVector <float> totalTaxValue;
+    totalTaxValue.resize(taxesList.size());
+    for (int ii = -1; ii <= cashList.size(); ii++) {
         QRect rectField(*pxbeg, *pybeg, *rectWidth, *rectHeight);
         painter->drawRect(rectField);
         if (ii == -1) {
             font->setBold(true);
             painter->setFont(*font);
-            painter->drawText(rectField, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap, "Всего");
+            painter->drawText(rectField, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap, "");
             font->setBold(false);
             painter->setFont(*font);
             *pxbeg += *rectWidth;
             this->drawTotalTaxTitleField(painter, pxbeg, pybeg, rectFrame,
                                          rectWidth, rectHeight, taxesList);
+        }
+        else if (ii == cashList.size()) {
+            painter->drawText(rectField, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap, TOTAL_CASH_STRING);
+            int curRectWidth = (rectFrame.width() - rectField.width())/taxesList.size();
+            *pxbeg += rectField.width();
+            for (int jj = 0; jj < taxesList.size(); jj++) {
+                QRect rectFieldValue(*pxbeg, *pybeg, curRectWidth, *rectHeight);
+                painter->drawRect(rectFieldValue);
+                painter->drawText(rectFieldValue, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap,
+                                  QString::number(totalTaxValue.at(jj)));
+                *pxbeg += rectFieldValue.width();
+            }
+            *pybeg += *rectHeight;
         }
         else {
             painter->drawText(rectField, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap, cashList.at(ii));
@@ -326,6 +356,8 @@ void ReportWindow::drawTotalCashAndTaxTitle(QPainter *painter, QFont *font, int 
                 taxId = sqlManager.selectIdFromTable(taxTable.table, taxTable.id, taxTable.title, taxesList.at(jj));
                 taxValue.append(sqlManager.selectTotalSumInPeriodByTaxCash(selectedDate, selectedDate,
                                                                            taxId, cashId));
+                float value = totalTaxValue.at(jj) + taxValue.at(jj);
+                totalTaxValue.replace(jj, value);
             }
             this->drawTotalTaxValueField(painter, pxbeg, pybeg, rectFrame,
                                          rectWidth, rectHeight, taxValue);
@@ -356,7 +388,9 @@ void ReportWindow::drawTotalTaxValueField(QPainter *painter, int *pxbeg, int *py
                                           QVector<float> taxValue)
 {
     int px0 = *pxbeg;
+    float totalSum = 0;
     for (int jj = 0; jj < taxValue.size(); jj++) {
+        totalSum += taxValue.at(jj);
         QRect rectField(*pxbeg, *pybeg, (rectFrame.width() - *rectWidth)/taxValue.size(), *rectHeight);
         painter->drawRect(rectField);
         painter->drawText(rectField, Qt::AlignCenter | Qt::AlignTop | Qt::TextWordWrap,

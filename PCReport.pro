@@ -54,7 +54,7 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-# win32:RC_FILE = app_res.rc
+win32:RC_FILE = app_res.rc
 
 RESOURCES += \
     app_sources.qrc

@@ -9,18 +9,13 @@
 #define CASH_STRING "нал."
 #define NONCASH_STRING "б/нал."
 #define SELFCOAST_STRING "себест-ть"
+#define TOTAL_CASH_STRING "всего"
 
 enum RegisterType {
     Register_defCategory,
     Register_Salary,
     Register_Costs,
 };
-
-//enum QueryType {
-//    Select_Category_Tax,
-//    Select_Category_Tax_Cash,
-//    Select_Tax_Cash,
-//};
 
 struct DefinedCategory {
     QString categoryTitle;
