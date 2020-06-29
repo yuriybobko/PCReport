@@ -18,6 +18,8 @@
 #define DEFAULT_DATABASE_FILE "/database.db"
 #define GROUP_DATABASE_DIRECTORY "DATA_BASE_DIRECTORY"
 #define VAR_DATABASE_FILE "dataBaseFile"
+#define VAR_DATABASE_AUTOOPENING "dbAutoOpening"
+#define DEFAULT_DATABASE_AUTOOPENING "false"
 #define GROUP_SALARY_PARAMETERS "SALARY_PARAMETERS"
 #define VAR_BASIC_WAGE "basicWage"
 #define VAR_BASIC_WAGE_KOEF_SALARY "basicWageKoefSalary"
@@ -57,6 +59,7 @@ public:
     float basicWage;
     //float basicWageKoefSalary;
     float koefBasicWage;
+    bool isDBAutoOpening;
 
 public slots:
     // Методы для настроек
@@ -77,6 +80,7 @@ public slots:
 
     // Проверка всех полей
     bool isEditChanged();
+    bool isAutoOpeningChanged();
     bool isStafferChanged();
     bool isCategoryChanged();
     bool isTaxChanged();

@@ -167,6 +167,13 @@ bool MainWindow::isAdminMode()
     return m_isAdmin;
 }
 
+void MainWindow::checkDBAutoOpening()
+{
+    if (m_settingWndw->isDBAutoOpening) {
+        m_settingWndw->openDataBase(m_settingWndw->dataBaseFile);
+    }
+}
+
 void MainWindow::setChildWidgets()
 {
     QString imgLogoFile = PICT_LOGO_95;
