@@ -207,7 +207,7 @@
       </font>
      </property>
      <property name="title">
-      <string>Файл отчета</string>
+      <string>Файл pdf-отчета</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_5">
       <item>
@@ -220,7 +220,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Найти</string>
+           <string>Найти pdf-файл</string>
           </property>
          </widget>
         </item>
@@ -245,7 +245,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Открыть</string>
+           <string>Открыть pdf-файл</string>
           </property>
          </widget>
         </item>

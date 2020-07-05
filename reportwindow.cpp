@@ -185,6 +185,7 @@ void ReportWindow::printReport()
     this->drawCommentField(painter, &font, &pxbeg, &pybeg, rectFrame);
     // ---------------------------------------------------------------------
     painter->end();
+    QMessageBox::information(nullptr, tr("Информация"), tr("Файл отчет сохранен"));
 
     if (ui->CmbBoxPrinter->currentIndex() == 0) {
         if ((!ui->EditReportPath->text().isEmpty()) && (ui->ChkBoxOpenPDF->isChecked())) {
@@ -192,7 +193,7 @@ void ReportWindow::printReport()
             //ShellExecuteW(0,0,FileReportPath.toStdWString().c_str(),0, 0 , SW_NORMAL); // Открываем программой по умолчанию в Windows
         }
         else
-            QMessageBox::warning(nullptr,tr("Предупреждение"),tr("Проверьте открываемый файл"));
+            QMessageBox::warning(nullptr, tr("Предупреждение"), tr("Проверьте открываемый файл"));
     }
 
     delete printer;

@@ -666,7 +666,7 @@ void MainWindow::showProfitInEdit()
     totalCosts = sqlManager.selectTotalCostsInPeriod(firstDate, secondDate);
     float totalProfit = netSum - (totalSalary + totalCosts);
     ui->TextEditProfit->setText("Прибыль за период с " + firstDate + " по " + secondDate + "\n"
-                                "составила " + QString::number(totalProfit) + " руб.");
+                                "составила: " + QString::number(totalProfit) + " руб.");
 }
 
 void MainWindow::editTableView()
@@ -894,21 +894,21 @@ void MainWindow::removeRecordInTableView()
                     if (!sqlManager.updateRecordInSalaryRegisterTable(salaryRegRec)) {
                         qDebug() <<"Record update in salary_register has not been made";
                     }
-                    this->setDefCategoryRegisterInTableView();
                 }
             }
+            this->setDefCategoryRegisterInTableView();
         }
         else if (m_registerType == RegisterType::Register_Costs) {
-            for (int ii = 0; ii < selectedRows.size(); ii++){
+            for (int ii = 0; ii < selectedRows.size(); ii++) {
                 int requiredId = selectedRows[ii].data(0).toInt();
                 if (sqlManager.deleteInCostsRegisterTable(requiredId)) {
                     this->showStatusBar("Строка удалена");
-                    this->setCostsRegisterInTableView();
                 }
                 else {
-                    qDebug() <<"Record deleting in costs_register has not been made";
+                    qDebug() << "Record deleting in costs_register has not been made";
                 }
             }
+            this->setCostsRegisterInTableView();
         }
     }
 }

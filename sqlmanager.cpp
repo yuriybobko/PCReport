@@ -341,15 +341,15 @@ float SqlManager::selectTotalSelfcoastInPeriod(QString firstDate, QString second
 
 float SqlManager::selectTotalSalaryInPeriod(QString firstDate, QString secondDate)
 {
-    DefCategoryRegisterTable defCtgryRegTable;
+    SalaryRegisterTable salaryRegTable;
     float totalSalary = 0;
     if (!dataBase.isOpen()) {
         emit signalToStatusBar("База данных не открыта");
         return totalSalary;
     }
     QSqlQuery query;
-    QString queryString = "SELECT SUM(" + defCtgryRegTable.amount +  ") FROM " + defCtgryRegTable.table +
-            " WHERE " + defCtgryRegTable.date + " BETWEEN :firstDate AND :secondDate;";
+    QString queryString = "SELECT SUM(" + salaryRegTable.amount +  ") FROM " + salaryRegTable.table +
+            " WHERE " + salaryRegTable.date + " BETWEEN :firstDate AND :secondDate;";
     if (query.prepare(queryString)) {
         query.bindValue(":firstDate", firstDate);
         query.bindValue(":secondDate", secondDate);
