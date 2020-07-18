@@ -150,6 +150,39 @@ bool SqlManager::insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRec
     return false;
 }
 
+bool SqlManager::updateRecordInSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord, bool isDefNewSalary)
+{
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return false;
+    }
+    SalaryRegisterTable salaryRegTable;
+    QString requiredDate = salaryRegRecord.date;
+    int requiredStafferId = salaryRegRecord.stafferId;
+    float newAmount = salaryRegRecord.amount;
+    if (!isDefNewSalary) {
+        QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector = this->selectDefCategoryRegRecord(requiredDate,
+                                                                                                   requiredStafferId);
+        QVector<DefinedCategoryRecord> defCtgryRecordVector = this->selectDefCategoryRecord(defCtgryRegRecordVector);
+        SalaryRegisterRecord oldSalaryRegRecord = this->selectSalaryRecord(requiredDate, requiredStafferId);
+        newAmount = this->calcSalary(defCtgryRegRecordVector, defCtgryRecordVector, oldSalaryRegRecord);
+    }
+
+    QSqlQuery query;
+    QString queryString = "UPDATE " + salaryRegTable.table + " SET " + salaryRegTable.amount + " = :newAmount " +
+            "WHERE " + salaryRegTable.date + " = :requiredDate " +
+            " AND " + salaryRegTable.staffer + " = :requiredStafferId" +
+            ";";
+    if (query.prepare(queryString)) {
+        query.bindValue(":newAmount", newAmount);
+        query.bindValue(":requiredDate", requiredDate);
+        query.bindValue(":requiredStafferId", requiredStafferId);
+        if (query.exec())
+            return true;
+    }
+    return false;
+}
+
 bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterRecord costsRegRecord)
 {
     if (!dataBase.isOpen()) {
@@ -174,35 +207,6 @@ bool SqlManager::insertIntoCostsRegisterTable(CostsRegisterRecord costsRegRecord
     return false;
 }
 
-bool SqlManager::updateRecordInSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord)
-{
-    if (!dataBase.isOpen()) {
-        emit signalToStatusBar("База данных не открыта");
-        return false;
-    }
-    SalaryRegisterTable salaryRegTable;
-    QString requiredDate = salaryRegRecord.date;
-    int requiredStafferId = salaryRegRecord.stafferId;
-    QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector = this->selectDefCategoryRegRecord(requiredDate,
-                                                                                               requiredStafferId);
-    QVector<DefinedCategoryRecord> defCtgryRecordVector = this->selectDefCategoryRecord(defCtgryRegRecordVector);
-    SalaryRegisterRecord oldSalaryRegRecord = this->selectSalaryRecord(requiredDate, requiredStafferId);
-    float newAmount = this->calcSalary(defCtgryRegRecordVector, defCtgryRecordVector, oldSalaryRegRecord);
-
-    QSqlQuery query;
-    QString queryString = "UPDATE " + salaryRegTable.table + " SET " + salaryRegTable.amount + " = :newAmount " +
-            "WHERE " + salaryRegTable.date + " = :requiredDate " +
-            " AND " + salaryRegTable.staffer + " = :requiredStafferId" +
-            ";";
-    if (query.prepare(queryString)) {
-        query.bindValue(":newAmount", newAmount);
-        query.bindValue(":requiredDate", requiredDate);
-        query.bindValue(":requiredStafferId", requiredStafferId);
-        if (query.exec())
-                return true;
-    }
-    return false;
-}
 
 float SqlManager::calcSalary(QVector<DefCategoryRegisterRecord> defCtgryRegRecordVector,
                              QVector<DefinedCategoryRecord> defCtgryRecordVector,

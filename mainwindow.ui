@@ -154,6 +154,18 @@
                 </widget>
                </item>
                <item>
+                <widget class="QCheckBox" name="ChkBoxEditSalary">
+                 <property name="font">
+                  <font>
+                   <pointsize>10</pointsize>
+                  </font>
+                 </property>
+                 <property name="text">
+                  <string>Изменить З/П</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
                 <spacer name="verticalSpacer_2">
                  <property name="orientation">
                   <enum>Qt::Vertical</enum>

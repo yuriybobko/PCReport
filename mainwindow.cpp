@@ -58,6 +58,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->BtnWriteRegisterToDataBase, SIGNAL(clicked()), this, SLOT(writeDefCategoryRecordToDataBase()));
     connect(ui->BtnWriteCostsToDataBase, SIGNAL(clicked()), this, SLOT(writeCostsRecordToDataBase()));
 
+    // Редактируемость З/П
+    connect(ui->ChkBoxEditSalary, SIGNAL(toggled(bool)), this, SLOT(setEditSalaryReadOnly(bool)));
+
     connect(ui->BtnExit, &QPushButton::clicked, [this]() {
         this->closeApp();
     });
@@ -244,6 +247,7 @@ void MainWindow::setChildWidgets()
     ui->CmbBoxCash->addItems(cmbBosList);
 
     ui->EditCostsTotalSum->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
+    ui->EditSalary->setValidator(new QDoubleValidator(0, 1E+12, 2, this));
 
     ui->TableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
@@ -301,6 +305,11 @@ void MainWindow::setEnableWorkFields(bool isDatabaseOpen)
         ui->TabWidgetMain->setEnabled(false);
         ui->BtnShowReportWindow->setEnabled(false);
     }
+}
+
+void MainWindow::setEditSalaryReadOnly(bool status)
+{
+    ui->EditSalary->setReadOnly(!status);
 }
 
 void MainWindow::addFormBtnCategory(QString strCategory)
@@ -464,7 +473,7 @@ float MainWindow::calcSalary()
         float totalSum = m_FormCategory.at(ii)->getTotalSum();
         float selfcoast = m_FormCategory.at(ii)->getSelfcoast();
         if (totalSum - selfcoast < 0) {
-            this->showStatusBar("Себестоимость больше общей суммы");
+//            Себестоимость больше общей суммы
             this->clearDailyReportTabFinanceEdits();
             return -1;
         }
@@ -608,14 +617,20 @@ void MainWindow::writeSalaryRecordToDataBase()
     QString stafferName = ui->CmbBoxStaffer->currentText();
     salaryRegRecord.stafferId = sqlManager.selectIdFromTable(staffersTable.table, staffersTable.id,
                                                                staffersTable.name, stafferName);
-    salaryRegRecord.amount = this->calcSalary();
+    bool isEditableSalary = ui->ChkBoxEditSalary->isChecked();
+    if (!isEditableSalary) {
+        salaryRegRecord.amount = this->calcSalary();
+    }
+    else {
+        salaryRegRecord.amount = ui->EditSalary->text().toFloat();
+    }
     salaryRegRecord.basicWage = m_settingWndw->basicWage;
     salaryRegRecord.koefBasicWage = m_settingWndw->koefBasicWage;
 
     if (!sqlManager.isSalaryRecordExist(salaryRegRecord))
         sqlManager.insertIntoSalaryRegisterTable(salaryRegRecord);
     else {
-        sqlManager.updateRecordInSalaryRegisterTable(salaryRegRecord);
+        sqlManager.updateRecordInSalaryRegisterTable(salaryRegRecord, isEditableSalary);
     }
 }
 
@@ -891,7 +906,7 @@ void MainWindow::removeRecordInTableView()
                 SalaryRegisterRecord salaryRegRec = sqlManager.selectSalaryRecord(date, stafferId);
                 if (sqlManager.deleteInDefCategoryRegisterTable(requiredId)) {
                     this->showStatusBar("Строка удалена");
-                    if (!sqlManager.updateRecordInSalaryRegisterTable(salaryRegRec)) {
+                    if (!sqlManager.updateRecordInSalaryRegisterTable(salaryRegRec, false)) {
                         qDebug() <<"Record update in salary_register has not been made";
                     }
                 }

@@ -36,8 +36,8 @@ public slots:
 
     bool insertIntoDefCategoryRegisterTable(DefCategoryRegisterRecord defCtgryRegRecord);
     bool insertIntoSalaryRegisterTable(SalaryRegisterRecord salaryRegRecord);
+    bool updateRecordInSalaryRegisterTable(SalaryRegisterRecord SalaryRegRecord, bool isDefNewSalary);
     bool insertIntoCostsRegisterTable(CostsRegisterRecord costsRegRecord);
-    bool updateRecordInSalaryRegisterTable(SalaryRegisterRecord SalaryRegRecord);
 
     float calcSalary(QVector <DefCategoryRegisterRecord> defCtgryRegRecordVector,
                      QVector<DefinedCategoryRecord> defCtgryRecordVector,

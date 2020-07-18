@@ -53,6 +53,8 @@ private slots:
 
     void setEnableWorkFields(bool isDatabaseOpen);
 
+    void setEditSalaryReadOnly(bool status);
+
     void addFormBtnCategory(QString strCategory);
     void addFormBtnCategory(DefinedCategory defCategory);
 
