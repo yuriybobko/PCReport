@@ -155,8 +155,8 @@ void MainWindow::openUserModeDialog()
         else {
             isAdmin = false;
         }
-        this->setAdminStatus(isAdmin);
     }
+    this->setAdminStatus(isAdmin);
 }
 
 void MainWindow::setAdminStatus(bool isAdmin)
@@ -665,6 +665,7 @@ void MainWindow::showProfitInEdit()
     QString firstDate = ui->LblFromDate->text();
     QString secondDate = ui->LblToDate->text();
     float netSum = 0;
+    float totalSumInPeriod = 0;
     QVector <DefinedCategoryRecord> defCategoryRecord = sqlManager.selectDefCategoryRecord();
     for (int ii = 0; ii < defCategoryRecord.size(); ii++) {
         float totalSum = 0;
@@ -674,14 +675,18 @@ void MainWindow::showProfitInEdit()
         float totalSelfcoast = 0;
         totalSelfcoast = sqlManager.selectTotalSelfcoastInPeriod(firstDate, secondDate, categoryId, taxId);
         netSum += (totalSum - totalSelfcoast)*defCategoryRecord.at(ii).koefProfit;
+        totalSumInPeriod += totalSum;
     }
     float totalSalary = 0;
     totalSalary = sqlManager.selectTotalSalaryInPeriod(firstDate, secondDate);
     float totalCosts = 0;
     totalCosts = sqlManager.selectTotalCostsInPeriod(firstDate, secondDate);
     float totalProfit = netSum - (totalSalary + totalCosts);
-    ui->TextEditProfit->setText("Прибыль за период с " + firstDate + " по " + secondDate + "\n"
-                                "составила: " + QString::number(totalProfit) + " руб.");
+    ui->TextEditProfit->setText("За выбранный период с " + firstDate + " по " + secondDate + "\n"
+                                "Выручка: " + QString::number(totalSumInPeriod) + " руб." + "\n"
+                                "Заработная плата: " + QString::number(totalSalary) + " руб." + "\n"
+                                "Расходы: " + QString::number(totalCosts) + " руб." + "\n"
+                                "Прибыль: " + QString::number(totalProfit) + " руб.");
 }
 
 void MainWindow::editTableView()

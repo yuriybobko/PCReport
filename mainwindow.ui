@@ -161,7 +161,7 @@
                   </font>
                  </property>
                  <property name="text">
-                  <string>Изменить З/П</string>
+                  <string>Ручной ввод З/П</string>
                  </property>
                 </widget>
                </item>
