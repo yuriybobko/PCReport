@@ -5,3 +5,4 @@
 
 Программа написана на C++ с использованием Qt Creator и базы данных SQLite, в которую вносятся данные об ежедневных операциях.
 
+![Вид главного окна](https://github.com/yuriybobko/PCReport/blob/master/app_imgs/MainWindow_exmpl.jpg)
