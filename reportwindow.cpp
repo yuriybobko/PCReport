@@ -71,8 +71,6 @@ void ReportWindow::openReportFile()
     if (!fileName.isEmpty())
     {
         ShellExecuteW(nullptr, nullptr, fileName.toStdWString().c_str(), nullptr, nullptr, SW_NORMAL);
-        /*QProcess MeasPrProcess;
-        MeasPrProcess.startDetached(nullptr,(QStringList)FileReportPath);*/
     }
     else
         QMessageBox::warning(nullptr,tr("Предупреждение"),tr("Проверьте открываемый файл"));
@@ -239,8 +237,6 @@ void ReportWindow::drawBanner(QPainter *painter, QFont *font, int *pxbeg, int *p
             txt += ", ";
         else
             txt += "\n";
-//        if (stafferNames.size() > 1)
-//            txt += ", ";
     }
     txt += "Отчет №: ";
     txt += ui->EditReportNum->text();

@@ -1,5 +1,6 @@
 #include "formcategory.h"
 #include "ui_formcategory.h"
+#include <QDoubleValidator>
 
 FormCategory::FormCategory(int formId, QString category, QWidget *parent) :
     QWidget(parent),

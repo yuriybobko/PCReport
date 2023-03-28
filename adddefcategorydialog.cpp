@@ -30,8 +30,6 @@ AddDefCategoryDialog::AddDefCategoryDialog(QWidget *parent, QStringList category
     connect(ui->BtnCancel, &QPushButton::clicked, [this]() {
         this->reject();
     });
-
-//    this->setFixedSize(this->width(), this->height());
 }
 
 AddDefCategoryDialog::~AddDefCategoryDialog()

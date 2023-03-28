@@ -8,8 +8,6 @@ SettingWindow::SettingWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    this->setFixedSize(this->width(), this->height());
-
     m_settingFilePath = QApplication::applicationDirPath() + SETTING_FILE;
 
     this->readSettings();
@@ -51,8 +49,6 @@ SettingWindow::SettingWindow(QWidget *parent) :
     ui->BtnAddDefCategory->setIconSize(QSize(ui->BtnAddDefCategory->size().width() - 1,
                                        ui->BtnAddDefCategory->size().height() - 1));
     ui->BtnAddDefCategory->setIcon(imgAddIcon);
-
-//    this->openDataBase(dataBaseFile);
 
     this->editTableDefCategory();
 
@@ -669,8 +665,6 @@ void SettingWindow::setDefCategory()
                                                     categoriesTable.title, defCtgry.categoryTitle);
         int taxId = sqlManager.selectIdFromTable(taxesTable.table, taxesTable.id,
                                                     taxesTable.title, defCtgry.taxTitle);
-//        sqlManager.insertIntoDefCategoryTable(defCategoriesTable, categoryId, taxId, (int) defCtgry.selfcoast,
-//                                              defCtgry.koefSalary, defCtgry.koefProfit);
         sqlManager.insertIntoDefCategoryTable(categoryId, taxId, defCtgry);
     }
     emit signalToEditFormBtnCategory(m_defCategory);
@@ -727,7 +721,6 @@ void SettingWindow::editTableDefCategory()
     ui->TableViewDefCategory->clearSpans();
     if (m_defCategoryModel != nullptr)
         delete m_defCategoryModel;
-    //m_defCategoryModel = new QStandardItemModel(m_defCategory.size(), 5, ui->TableViewDefCategory);
     m_defCategoryModel = new QStandardItemModel(0, 7, ui->TableViewDefCategory);
     ui->TableViewDefCategory->setModel(m_defCategoryModel);
     int column = 0;

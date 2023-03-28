@@ -13,8 +13,6 @@ CalendarWindow::CalendarWindow(QWidget *parent) :
     connect(ui->BtnCancel, &QPushButton::clicked, [this]() {
         this->reject();
     });
-
-//    this->setFixedSize(this->width(), this->height());
 }
 
 CalendarWindow::~CalendarWindow()

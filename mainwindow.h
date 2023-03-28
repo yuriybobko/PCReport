@@ -11,7 +11,6 @@
 #include <QDebug>
 #include <QDate>
 #include <QTime>
-//#include <QLibraryInfo>
 #include <QDesktopWidget>
 #include "formbtncategory.h"
 #include "formcategory.h"
@@ -79,7 +78,7 @@ private slots:
     void fillFrameTotalSum(); // Заполнить поля полной суммы и зарплаты
     float getTotalCashMoney(); // Получить значения всех полей наличные
     float getTotalNonCashMoney(); // Получить значения полей безналичные
-    void setTotalSum(float totalCash, float totalNonCash); // Вычсилить полную сумму
+    void setTotalSum(float totalCash, float totalNonCash); // Вычислить полную сумму
     float calcSalary(); // Вычислить зарплату
     void setSalary(); // Записать зарплату в текстовое поле
     void clearDailyReportTabFinanceEdits(); // Очистить все финансовые текстовые поля во вкладке дневного отчета
@@ -128,15 +127,10 @@ private:
     int m_wndInitWidth;
     int m_wndInitHeight;
 
-    //QFrame *FrameLayoutCmdBtns;
     QVBoxLayout *LayoutFormBtnCategory;
 
     QVector <FormBtnCategory *> m_FormBtnCategory;
     QVector <FormCategory *> m_FormCategory; 
-
-//    QVector <DefCategoryRegisterRecordView> m_defCategoryRegRecordView;
-//    QVector <CostsRegisterRecordView> m_salaryRegRecordView;
-//    QVector <CostsRegisterRecordView> m_costsRegRecordView;
 
     QStandardItemModel *m_itemModel = nullptr;
 

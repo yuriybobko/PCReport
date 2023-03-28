@@ -4,14 +4,11 @@
 #include <QWidget>
 #include <QFrame>
 
-//namespace Ui {
-//class FormBtnCategory;
-//}
 namespace Ui {
 class FormBtnShowCategory;
 }
 
-class FormBtnCategory :  public QFrame // public QWidget
+class FormBtnCategory :  public QFrame
 {
     Q_OBJECT
 
@@ -26,7 +23,6 @@ signals:
     void signalToShowFormCategory(int formId);
 
 private:
-//    Ui::FormBtnCategory *ui;
     Ui::FormBtnShowCategory *ui;
 
     int m_formId;

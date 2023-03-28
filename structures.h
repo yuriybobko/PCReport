@@ -94,40 +94,29 @@ struct SalaryRegisterRecordView {
     float koefBasicWage;
 };
 
-//struct DataBaseTables {
-//    const QString staffers = "staffers";
-//    const QString categories = "categories";
-//    const QString taxes = "taxes";
-//    const QString defcategories = "defcategories_view";
-//};
-
 struct StaffersTable {
     const QString table = "staffers";
     const QString id = "id";
     const QString name = "name";
 };
-//extern StaffersTable staffersTable;
 
 struct CategoriesTable {
     const QString table = "categories";
     const QString id = "id";
     const QString title = "title";
 };
-//extern CategoriesTable categoriesTable;
 
 struct TaxesTable {
     const QString table = "taxes";
     const QString id = "id";
     const QString title = "title";
 };
-//extern TaxesTable taxesTable;
 
 struct CashTable {
     const QString table = "cash";
     const QString id = "id";
     const QString title = "title";
 };
-//extern CashTable cashTable;
 
 struct DefCategoriesTable {
     const QString table = "defcategories";
@@ -140,7 +129,6 @@ struct DefCategoriesTable {
     const QString isSelling = "selling";
     const QString isContracted = "contracted";
 };
-//extern DefCategoriesTable defCategoriesTable;
 
 struct DefCategoriesView {
     const QString table = "defcategories_view";
@@ -153,7 +141,6 @@ struct DefCategoriesView {
     const QString isSelling = "selling";
     const QString isContracted = "contracted";
 };
-//extern DefCategoriesView defCategoriesView;
 
 struct DefCategoryRegisterTable {
     const QString table = "defcategory_register";
@@ -166,7 +153,6 @@ struct DefCategoryRegisterTable {
     const QString amount = "amount";
     const QString selfcoast = "self_coast";
 };
-//extern DefCategoryRegisterTable defCategoryRegisterTable;
 
 struct DefCategoryRegisterView {
     const QString table = "defcategory_register_view";
@@ -179,7 +165,6 @@ struct DefCategoryRegisterView {
     const QString amount = "amount";
     const QString selfcoast = "self_coast";
 };
-//extern DefCategoryRegisterView defCategoryRegisterView;
 
 struct CostsRegisterTable {
     const QString table = "costs_register";
@@ -189,7 +174,6 @@ struct CostsRegisterTable {
     const QString amount = "amount";
     const QString description = "description";
 };
-//extern CostsRegisterTable costsRegisterTable;
 
 struct CostsRegisterView {
     const QString table = "costs_register_view";
@@ -199,7 +183,6 @@ struct CostsRegisterView {
     const QString amount = "amount";
     const QString description = "description";
 };
-//extern CostsRegisterView costsRegisterView;
 
 struct SalaryRegisterTable {
     const QString table = "salary_register";
@@ -210,7 +193,6 @@ struct SalaryRegisterTable {
     const QString basicWage = "basic_wage";
     const QString koefBasicWage = "koef_basic_wage";
 };
-//extern SalaryRegisterTable salaryRegisterTable;
 
 struct SalaryRegisterView {
     const QString table = "salary_register_view";
@@ -221,6 +203,5 @@ struct SalaryRegisterView {
     const QString basicWage = "basic_wage";
     const QString koefBasicWage = "koef_basic_wage";
 };
-//extern SalaryRegisterView salaryRegisterView;
 
 #endif // STUCTURES_H

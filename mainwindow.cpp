@@ -73,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->BtnShowProfit, SIGNAL(clicked()), this, SLOT(showProfitInEdit()));
 
-    // Показать табицу записей из реестров
+    // Показать таблицу записей из реестров
     connect(ui->BtnShowTableView, SIGNAL(clicked()), this, SLOT(editTableView()));
     // Удалить запись в таблице записей из реестров категорий
     connect(ui->BtnDeleteRecord, SIGNAL(clicked()), this, SLOT(removeRecordInTableView()));
@@ -682,11 +682,19 @@ void MainWindow::showProfitInEdit()
     float totalCosts = 0;
     totalCosts = sqlManager.selectTotalCostsInPeriod(firstDate, secondDate);
     float totalProfit = netSum - (totalSalary + totalCosts);
-    ui->TextEditProfit->setText("За выбранный период с " + firstDate + " по " + secondDate + "\n"
+
+    QStringList stafferNames = sqlManager.selectStafferFromDefCategoryRegRecord(firstDate, secondDate);
+    QString outText = "За выбранный период с " + firstDate + " по " + secondDate + "\n"
                                 "Выручка: " + QString::number(totalSumInPeriod) + " руб." + "\n"
                                 "Заработная плата: " + QString::number(totalSalary) + " руб." + "\n"
                                 "Расходы: " + QString::number(totalCosts) + " руб." + "\n"
-                                "Прибыль: " + QString::number(totalProfit) + " руб.");
+                                "Прибыль: " + QString::number(totalProfit) + " руб.\n";
+    outText += "Заработная плата сотрудников:\n";
+    for (const auto& stafferName:qAsConst(stafferNames)) {
+        float totalSalary = sqlManager.selectStafferTotalSalaryValue(firstDate, secondDate, stafferName);
+        outText += stafferName + ": " + QString::number(totalSalary) + " руб.\n";
+    }
+    ui->TextEditProfit->setText(outText);
 }
 
 void MainWindow::editTableView()
@@ -760,7 +768,6 @@ void MainWindow::setSalaryRegisterInTableView()
     for(int row = 0; row != salaryRegRecordView.size(); ++row) {
        this->addRowInTableView(salaryRegRecordView.at(row));
     }
-    //ui->TableView->setColumnWidth(column, 30);
     m_itemModel->setHeaderData(column, Qt::Horizontal, "Номер");
     ui->TableView->hideColumn(column);
     column++;
@@ -793,7 +800,6 @@ void MainWindow::setCostsRegisterInTableView()
     for(int row = 0; row != costsRegRecordView.size(); ++row) {
        this->addRowInTableView(costsRegRecordView.at(row));
     }
-    //ui->TableView->setColumnWidth(column, 30);
     m_itemModel->setHeaderData(column, Qt::Horizontal, "Номер");
     ui->TableView->hideColumn(column);
     column++;

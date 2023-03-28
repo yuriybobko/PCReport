@@ -776,6 +776,31 @@ SalaryRegisterRecord SqlManager::selectSalaryRecord(QString date, int stafferId)
     return salaryRegRecord;
 }
 
+float SqlManager::selectStafferTotalSalaryValue(QString firstDate, QString secondDate, QString stafferName)
+{
+    float totalSalaryValue = 0;
+    SalaryRegisterView salaryRegView;
+    if (!dataBase.isOpen()) {
+        emit signalToStatusBar("База данных не открыта");
+        return totalSalaryValue;
+    }
+    QSqlQuery query;
+    QString queryString = "SELECT SUM(" + salaryRegView.amount +  ") FROM " + salaryRegView.table +
+            " WHERE " + salaryRegView.date + " BETWEEN :firstDate AND :secondDate "
+            "AND " + salaryRegView.staffer + " = :stafferName;";
+    if (query.prepare(queryString)) {
+        query.bindValue(":firstDate", firstDate);
+        query.bindValue(":secondDate", secondDate);
+        query.bindValue(":stafferName", stafferName);
+        if (query.exec()) {
+            while (query.next()) {
+                totalSalaryValue = query.value(0).toFloat();
+            }
+        }
+    }
+    return totalSalaryValue;
+}
+
 int SqlManager::selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle)
 {
     int id = -1;

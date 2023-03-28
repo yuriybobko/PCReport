@@ -97,6 +97,9 @@ public slots:
     // Выбрать запись из реестра зарплат по заданной дате и id сотрудника
     SalaryRegisterRecord selectSalaryRecord(QString date, int stafferId);
 
+    // Выбрать суммарную запись из реестра зарплат по имени сотрудника в заданный период времени
+    float selectStafferTotalSalaryValue(QString firstDate, QString secondDate, QString stafferName); // TODO!!!!!!
+
     //Выбрать id из таблицы
     int selectIdFromTable(QString table, QString tableId, QString tableTitle, QString requiredTitle);
 

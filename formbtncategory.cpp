@@ -1,5 +1,4 @@
 #include "formbtncategory.h"
-//#include "ui_formbtncategory.h"
 #include "ui_formbtnshowcategory.h"
 
 FormBtnCategory::FormBtnCategory(int formId, QString category, QWidget *parent) :
